@@ -19,9 +19,10 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
-import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
-import com.ivn.mijuego.model.Bala;
+import com.badlogic.gdx.utils.Array;
+import com.ivn.mijuego.model.BalaOvni;
+import com.ivn.mijuego.model.BalaPj;
+import com.ivn.mijuego.model.Ovni;
 import com.ivn.mijuego.model.Personaje;
 
 import static com.ivn.mijuego.util.Constantes.*;
@@ -29,6 +30,7 @@ import static com.ivn.mijuego.util.Constantes.*;
 public class GameScreen implements Screen {
 
     private Personaje personaje;
+    private Array<Ovni> ovnis;
 
     // TiledMap
     private Batch batch;
@@ -48,7 +50,7 @@ public class GameScreen implements Screen {
        // atlas = new TextureAtlas("personaje/jump.atlas");
         //Texture t = atlas.findRegion("adventurer-run-00").getTexture();
 
-        world = new World(new Vector2(0,-10 * PPM),true);
+        world = new World(new Vector2(0,-9.8f * PPM),true);
 
         camera = new OrthographicCamera();
 
@@ -61,7 +63,7 @@ public class GameScreen implements Screen {
 
         // create renderer with default values
         b2dr = new Box2DDebugRenderer(
-                /*drawBodies*/         false,
+                /*drawBodies*/         true,
                 /*drawJoints*/         false,
                 /*drawAABBs*/          false,
                 /*drawInactiveBodies*/ false,
@@ -88,7 +90,7 @@ public class GameScreen implements Screen {
             shape.setAsBox(rect.getWidth() / 2, rect.getHeight() / 2);
 
             fdef.shape = shape;
-            fdef.friction = 1f;
+            fdef.friction = 0.1f;
 
             body.createFixture(fdef);
 
@@ -96,6 +98,7 @@ public class GameScreen implements Screen {
         }
 
         personaje = new Personaje(new Vector2(40,90), new Texture("personaje/pj_der.png"), 5, world);
+        ovnis = new Array<>();
     }
 
     @Override
@@ -106,6 +109,7 @@ public class GameScreen implements Screen {
     @Override
     public void render(float dt) {
         actualizar(dt);
+
         pintar();
     }
 
@@ -118,10 +122,16 @@ public class GameScreen implements Screen {
 
         renderer.render();
 
-        //b2dr.render(world,camera.combined);
+        b2dr.render(world,camera.combined);
+
 
         batch.begin();
+
         personaje.pintar(batch);
+
+        for(Ovni ovni : ovnis)
+            ovni.pintar(batch);
+
         batch.end();
 
     }
@@ -156,7 +166,7 @@ public class GameScreen implements Screen {
 
         //generarRocas();
 
-        //moverEnemigos();
+        moverEnemigos();
 
         //moverRocas();
 
@@ -167,14 +177,37 @@ public class GameScreen implements Screen {
         world.step(1/60f,6,2);
     }
 
+    private void generarEnemigos(){
+
+        /*
+            Timer.schedule(new Timer.Task() {
+                public void run(){
+                    rocas.add(new Roca(new Vector2(Gdx.graphics.getWidth() - 20, MathUtils.random(0, Gdx.graphics.getHeight())), new Texture("enemy/stone1.png"), 3, VELOCIDAD_ROCAS));
+                }
+            }, 1, 1);
+
+         */
+        ovnis.add(new Ovni(new Vector2(50,300), new Texture("ovni/ovni.png")));
+    }
+
+
     private void moverBalas(){
-        for(Bala bala : personaje.balas)
+        for(BalaPj bala : personaje.balas)
             bala.mover();
+
+        for(Ovni ovni : ovnis)
+            for(BalaOvni balaOvni : ovni.balas)
+                balaOvni.mover();
+    }
+
+    private void moverEnemigos(){
+        for(Ovni ovni : ovnis)
+            ovni.mover(personaje.b2body.getPosition());
     }
 
     private void comprobarColisiones(){
 
-        /*
+
         // Obtiene todos los objetos de la capa 'colision'
         MapLayer collisionsLayer = map.getLayers().get("colisiones");
 
@@ -184,12 +217,34 @@ public class GameScreen implements Screen {
 
             // Caso 3: Obtiene el rectangulo ocupado por el objeto
             Rectangle rect = rectangleObject.getRectangle();
-            if (personaje.rect.overlaps(rect)) {
-                System.out.println("CHOCA");
+            for(BalaPj bala : personaje.balas)
+                if (bala.rect.overlaps(rect)){
+                    personaje.balas.removeValue(bala, true);
+                }
+
+            for(BalaOvni bala : Ovni.balas) {
+                if (bala.rect.overlaps(rect)) {
+                    Ovni.balas.removeValue(bala, true);
+                }
             }
         }
 
-        */
+
+
+        for(Ovni ovni : ovnis)
+            for(BalaPj bala : personaje.balas)
+                if (bala.rect.overlaps(ovni.rect)){
+                    ovnis.removeValue(ovni, true);
+                    personaje.balas.removeValue(bala, true);
+                    generarEnemigos();
+                }
+
+
+
+        for(BalaOvni  balaOvni :  Ovni.balas)
+            if(balaOvni.rect.overlaps(new Rectangle(personaje.b2body.getPosition().x -8 ,personaje.b2body.getPosition().y -14,personaje.getTextura().getWidth(),personaje.getTextura().getHeight())))
+                Ovni.balas.removeValue(balaOvni, true);
+
     }
 
     private void comprobarTeclado(float dt) {
@@ -216,7 +271,8 @@ public class GameScreen implements Screen {
             personaje.moverIzquierda();
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE))
-            personaje.disparar(getMousePosInGameWorld());
+            //personaje.disparar(getMousePosInGameWorld());
+            generarEnemigos();
 
         if(Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)){
             personaje.disparar(getMousePosInGameWorld());
@@ -224,6 +280,7 @@ public class GameScreen implements Screen {
 
 
     }
+
     Vector3 getMousePosInGameWorld() {
         return camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
     }

@@ -20,7 +20,7 @@ public class Personaje extends Sprite {
     public int velocidad;
     public Rectangle rect;
     public boolean isJumping = false;
-    public Array<Bala> balas;
+    public Array<BalaPj> balas;
 
     public World world;
     public Body b2body;
@@ -59,7 +59,7 @@ public class Personaje extends Sprite {
         shape.setAsBox(rect.getWidth() / 2, rect.getHeight() / 2);
 
         fixtureDef.shape = shape;
-        fixtureDef.friction = 0.4f;
+        fixtureDef.friction = 0.1f;
         //fixtureDef.density = 0.1f;
 
         b2body.createFixture(fixtureDef);
@@ -68,9 +68,9 @@ public class Personaje extends Sprite {
     }
 
     public void pintar(Batch batch){
-        batch.draw(textura,b2body.getPosition().x - 15,b2body.getPosition().y - 31);
+        batch.draw(textura,b2body.getPosition().x -8,b2body.getPosition().y -14);
 
-        for (Bala bala : balas)
+        for (BalaPj bala : balas)
             bala.pintar(batch);
     }
 
@@ -82,21 +82,24 @@ public class Personaje extends Sprite {
     public void saltar(float dt){
         //mover(new Vector2(0,10));
 
-        b2body.applyLinearImpulse(new Vector2(0,100*PPM),b2body.getWorldCenter(), true);
+        //b2body.applyLinearImpulse(new Vector2(0,10*PPM),b2body.getWorldCenter(), true);
+
+        float impulse = b2body.getMass() * 1000;
+        b2body.applyLinearImpulse( new Vector2(0,impulse),b2body.getWorldCenter(), true );
     }
 
     public void moverDerecha(){
         //mover(new Vector2(1,0));
 
         textura = new Texture("personaje/pj_der.png");
-        b2body.applyLinearImpulse(new Vector2(0.7f*PPM,0),b2body.getWorldCenter(), true);
+        b2body.applyLinearImpulse(new Vector2(0.1f*PPM,0),b2body.getWorldCenter(), true);
     }
 
     public void moverIzquierda(){
         //mover(new Vector2(-1,0));
 
         textura = new Texture("personaje/pj_izq.png");
-        b2body.applyLinearImpulse(new Vector2(-0.7f*PPM,0),b2body.getWorldCenter(), true);
+        b2body.applyLinearImpulse(new Vector2(-0.1f*PPM,0),b2body.getWorldCenter(), true);
     }
 
     public Vector2 getPosicion() {
@@ -132,6 +135,6 @@ public class Personaje extends Sprite {
     }
 
     public void disparar(Vector3 target){
-        balas.add(new Bala(new Vector2(b2body.getPosition().x, b2body.getPosition().y),new Texture("balas/bala.png"), target));
+        balas.add(new BalaPj(new Vector2(b2body.getPosition().x, b2body.getPosition().y),new Texture("balas/bala.png"), target));
     }
 }
