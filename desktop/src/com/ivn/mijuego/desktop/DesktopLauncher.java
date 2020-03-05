@@ -9,9 +9,12 @@ public class DesktopLauncher {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 
 		config.title = "Jumper2DX";
-		config.width = 1400;
+		config.width = 1480;
 		config.height = 800;
 		config.fullscreen = false;
+		//config.foregroundFPS = 60; // <- limit when focused
+		//config.backgroundFPS = 60; // <- limit when minimized
+		//config.samples =2; // AA for shape renderer.. not textures!
 
 		new LwjglApplication(new Aplication(), config);
 	}

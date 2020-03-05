@@ -1,16 +1,14 @@
 package com.ivn.mijuego.screens;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.GL30;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -20,6 +18,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.TimeUtils;
 import com.ivn.mijuego.model.BalaOvni;
 import com.ivn.mijuego.model.BalaPj;
 import com.ivn.mijuego.model.Ovni;
@@ -32,25 +31,37 @@ public class GameScreen implements Screen {
     private Personaje personaje;
     private Array<Ovni> ovnis;
 
+    // CURSOR
+    Pixmap cursorPixmap = new Pixmap(Gdx.files.internal("cursor/cursor1.png"));
+
+    // FPS
+    long lastTimeCounted;
+    private float sinceChange;
+    private float frameRate;
+    private BitmapFont font;
+
     // TiledMap
     private Batch batch;
     private OrthographicCamera camera;
     private TiledMap map;
     private OrthogonalTiledMapRenderer renderer;
 
-    public static final float TILE_SIZE = 16;
-
     // Box2d
     private World world;
-    private Box2DDebugRenderer b2dr;
+    //private Box2DDebugRenderer b2dr;
 
-    private TextureAtlas atlas ;
 
     public GameScreen(){
-       // atlas = new TextureAtlas("personaje/jump.atlas");
-        //Texture t = atlas.findRegion("adventurer-run-00").getTexture();
 
-        world = new World(new Vector2(0,-9.8f * PPM),true);
+        // FPS
+        lastTimeCounted = TimeUtils.millis();
+        sinceChange = 0;
+        frameRate = Gdx.graphics.getFramesPerSecond();
+        font = new BitmapFont();
+        font.setColor(Color.RED);
+
+
+        world = new World(new Vector2(0,-10f),true);
 
         camera = new OrthographicCamera();
 
@@ -62,14 +73,7 @@ public class GameScreen implements Screen {
         batch = renderer.getBatch();
 
         // create renderer with default values
-        b2dr = new Box2DDebugRenderer(
-                /*drawBodies*/         true,
-                /*drawJoints*/         false,
-                /*drawAABBs*/          false,
-                /*drawInactiveBodies*/ false,
-                /*drawVelocities*/     false,
-                /*drawContacts*/       false);
-
+        //b2dr = new Box2DDebugRenderer();
 
         BodyDef bdef = new BodyDef();
         FixtureDef fdef = new FixtureDef();
@@ -90,19 +94,22 @@ public class GameScreen implements Screen {
             shape.setAsBox(rect.getWidth() / 2, rect.getHeight() / 2);
 
             fdef.shape = shape;
-            fdef.friction = 0.1f;
+            fdef.friction = 0.5f;
+
 
             body.createFixture(fdef);
 
             shape.dispose();
         }
 
-        personaje = new Personaje(new Vector2(40,90), new Texture("personaje/pj_der.png"), 5, world);
+        personaje = new Personaje(new Vector2(40,90), 5, world);
         ovnis = new Array<>();
     }
 
     @Override
     public void show() {
+        // CURSOR
+        Gdx.graphics.setCursor(Gdx.graphics.newCursor(cursorPixmap, 0, 0));
 
     }
 
@@ -110,22 +117,23 @@ public class GameScreen implements Screen {
     public void render(float dt) {
         actualizar(dt);
 
-        pintar();
+        pintar(dt);
     }
 
-    private void pintar() {
+    private void pintar(float dt) {
         handleCamera();
 
         Gdx.gl.glClearColor(0, 0, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
+        //Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
 
         renderer.render();
 
-        b2dr.render(world,camera.combined);
-
+        //b2dr.render(world,camera.combined);
 
         batch.begin();
+
+        font.draw(batch, (int)frameRate + " fps", 30, 30);
 
         personaje.pintar(batch);
 
@@ -137,7 +145,7 @@ public class GameScreen implements Screen {
     }
 
     private void handleCamera() {
-/*
+
         if (personaje.b2body.getPosition().x < TILES_IN_CAMERA_WIDTH * TILE_WIDTH / 2)
             camera.position.set(TILES_IN_CAMERA_WIDTH * TILE_WIDTH / 2, TILES_IN_CAMERA_HEIGHT * TILE_WIDTH / 2 , 0);
         else
@@ -146,9 +154,7 @@ public class GameScreen implements Screen {
         camera.update();
         renderer.setView(camera);
 
-*/
-
-
+/*
         camera.position.x = personaje.b2body.getPosition().x;
 
         //update our gamecam with correct coordinates after changes
@@ -156,7 +162,7 @@ public class GameScreen implements Screen {
         //tell our renderer to draw only what our camera can see in our game world.
         renderer.setView(camera);
         renderer.render();
-
+*/
     }
 
     private void actualizar(float dt) {
@@ -164,17 +170,16 @@ public class GameScreen implements Screen {
 
         //generarEnemigos();
 
-        //generarRocas();
-
         moverEnemigos();
-
-        //moverRocas();
 
         comprobarColisiones();
 
         moverBalas();
 
+        update();
+
         world.step(1/60f,6,2);
+
     }
 
     private void generarEnemigos(){
@@ -187,9 +192,8 @@ public class GameScreen implements Screen {
             }, 1, 1);
 
          */
-        ovnis.add(new Ovni(new Vector2(50,300), new Texture("ovni/ovni.png")));
+        ovnis.add(new Ovni(new Vector2(-50,210), new Texture("ovni/ovni.png")));
     }
-
 
     private void moverBalas(){
         for(BalaPj bala : personaje.balas)
@@ -207,7 +211,6 @@ public class GameScreen implements Screen {
 
     private void comprobarColisiones(){
 
-
         // Obtiene todos los objetos de la capa 'colision'
         MapLayer collisionsLayer = map.getLayers().get("colisiones");
 
@@ -215,8 +218,13 @@ public class GameScreen implements Screen {
             RectangleMapObject rectangleObject = (RectangleMapObject) object;
 
 
+
             // Caso 3: Obtiene el rectangulo ocupado por el objeto
             Rectangle rect = rectangleObject.getRectangle();
+
+            if(rect.overlaps(personaje.rect))
+                personaje.isJumping = false;
+
             for(BalaPj bala : personaje.balas)
                 if (bala.rect.overlaps(rect)){
                     personaje.balas.removeValue(bala, true);
@@ -229,8 +237,6 @@ public class GameScreen implements Screen {
             }
         }
 
-
-
         for(Ovni ovni : ovnis)
             for(BalaPj bala : personaje.balas)
                 if (bala.rect.overlaps(ovni.rect)){
@@ -239,30 +245,18 @@ public class GameScreen implements Screen {
                     generarEnemigos();
                 }
 
-
-
         for(BalaOvni  balaOvni :  Ovni.balas)
-            if(balaOvni.rect.overlaps(new Rectangle(personaje.b2body.getPosition().x -8 ,personaje.b2body.getPosition().y -14,personaje.getTextura().getWidth(),personaje.getTextura().getHeight())))
+            if(balaOvni.rect.overlaps(new Rectangle(personaje.b2body.getPosition().x -8 ,personaje.b2body.getPosition().y -14,personaje.getTextura().getRegionWidth(),personaje.getTextura().getRegionHeight())))
                 Ovni.balas.removeValue(balaOvni, true);
 
     }
 
     private void comprobarTeclado(float dt) {
 
-
-        /*
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT))
-            personaje.moverIzquierda();
-
-         if (Gdx.input.isKeyPressed(Input.Keys.DOWN))
-            personaje.moverAbajo();
-
-         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT))
-            personaje.moverDerecha();
-         */
-
         if (Gdx.input.isKeyJustPressed(Input.Keys.W))
             personaje.saltar(dt);
+
+            personaje.b2body.applyForce(new Vector2( personaje.b2body.getLinearVelocity().x,-600),personaje.b2body.getWorldCenter(),false);
 
         if (Gdx.input.isKeyPressed(Input.Keys.D))
             personaje.moverDerecha();
@@ -278,7 +272,21 @@ public class GameScreen implements Screen {
             personaje.disparar(getMousePosInGameWorld());
         }
 
+        if(Gdx.input.isKeyPressed(Input.Keys.R)){
+            ((Game) Gdx.app.getApplicationListener()).setScreen(new GameScreen());
+        }
 
+    }
+
+    public void update() {
+        long delta = TimeUtils.timeSinceMillis(lastTimeCounted);
+        lastTimeCounted = TimeUtils.millis();
+
+        sinceChange += delta;
+        if(sinceChange >= 1000) {
+            sinceChange = 0;
+            frameRate = Gdx.graphics.getFramesPerSecond();
+        }
     }
 
     Vector3 getMousePosInGameWorld() {
@@ -304,8 +312,16 @@ public class GameScreen implements Screen {
     @Override
     public void dispose() {
         batch.dispose();
+
         map.dispose();
+
         renderer.dispose();
-        personaje.getTextura().dispose();
+
+        personaje.texturaBala.dispose();
+
+        font.dispose();
+
+        for(Ovni ovni : ovnis)
+            ovni.texture.dispose();
     }
 }

@@ -1,105 +1,144 @@
 package com.ivn.mijuego.model;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 
-import static com.ivn.mijuego.util.Constantes.PPM;
 import static com.ivn.mijuego.util.Constantes.SPEED;
 
 public class Personaje extends Sprite {
 
+    private enum Estado{
+        IDLE_LEFT, IDLE_RIGHT, RUN_RIGHT, RUN_LEFT
+    }
+
     public Vector2 posicion;
-    private Texture textura;
+    private TextureRegion textura;
     private int vidas;
     public int velocidad;
     public Rectangle rect;
     public boolean isJumping = false;
     public Array<BalaPj> balas;
+    private Estado estado;
 
+    public Texture texturaBala;
+
+    // Box2d
     public World world;
     public Body b2body;
 
-    public Personaje(Vector2 posicion, Texture textura, int vidas, World world) {
-        //super(textura);
+
+    // TextureAtlas y animaciones
+    private Animation idleRightAnimation;
+    private Animation idleLeftAnimation;
+    private Animation runRightAnimation;
+    private Animation runLeftAnimation;
+    float stateTime;
+
+    public Personaje(Vector2 posicion, int vidas, World world) {
 
         this.balas = new Array<>();
 
         this.posicion = posicion;
-        this.textura = textura;
         this.vidas = vidas;
         this.velocidad = SPEED;
-        this.rect = new Rectangle(posicion.x,posicion.y, textura.getWidth(), textura.getHeight());
+        this.textura = new TextureAtlas(Gdx.files.internal("personaje/runLeft.atlas")).findRegions("run").get(0);
+        this.rect = new Rectangle(posicion.x,posicion.y, textura.getRegionWidth(), textura.getRegionHeight());
         this.world = world;
 
+        this.texturaBala = new Texture("balas/bala.png");
 
         definePersonaje();
+
+        estado = Estado.RUN_RIGHT;
+        cargarAnimaciones();
+    }
+
+    public void cargarAnimaciones(){
+        idleRightAnimation = new Animation(0.15f, new TextureAtlas(Gdx.files.internal("personaje/idleRight.atlas")).findRegions("idle"));
+        idleLeftAnimation = new Animation(0.15f, new TextureAtlas(Gdx.files.internal("personaje/idleLeft.atlas")).findRegions("idle"));
+        runRightAnimation = new Animation(0.15f, new TextureAtlas(Gdx.files.internal("personaje/runRight.atlas")).findRegions("run"));
+        runLeftAnimation = new Animation(0.15f, new TextureAtlas(Gdx.files.internal("personaje/runLeft.atlas")).findRegions("run"));
+
     }
 
     public void definePersonaje(){
         BodyDef bdef = new BodyDef();
-        bdef.position.set(100,100);
+        bdef.position.set(90 , 50 );
         bdef.type = BodyDef.BodyType.DynamicBody;
         b2body = world.createBody(bdef);
 
-        FixtureDef fixtureDef = new FixtureDef();
-
-        /*
-        CircleShape shape = new CircleShape();
-        shape.setRadius(5);
-
-        */
+        FixtureDef fdef = new FixtureDef();
 
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(rect.getWidth() / 2, rect.getHeight() / 2);
 
-        fixtureDef.shape = shape;
-        fixtureDef.friction = 0.1f;
-        //fixtureDef.density = 0.1f;
+        fdef.shape = shape;
 
-        b2body.createFixture(fixtureDef);
+        b2body.createFixture(fdef).setUserData(this);
 
-        shape.dispose();
     }
 
     public void pintar(Batch batch){
-        batch.draw(textura,b2body.getPosition().x -8,b2body.getPosition().y -14);
+        stateTime += Gdx.graphics.getDeltaTime();
 
         for (BalaPj bala : balas)
             bala.pintar(batch);
-    }
 
-    public void mover(Vector2 movimiento){
-        posicion.add(movimiento.scl(velocidad));
-        rect.setPosition(posicion);
+        TextureRegion currentFrame = null;
+
+        if(b2body.isAwake()) {
+            switch (estado) {
+                case RUN_RIGHT:
+                    currentFrame = (TextureRegion) (runRightAnimation.getKeyFrame(stateTime, true));
+                    break;
+                case RUN_LEFT:
+                    currentFrame = (TextureRegion) (runLeftAnimation.getKeyFrame(stateTime, true));
+                    break;
+            }
+        }
+        else {
+            if (estado == Estado.RUN_RIGHT)
+                currentFrame = (TextureRegion) (idleRightAnimation.getKeyFrame(stateTime, true));
+            else{
+                currentFrame = (TextureRegion) (idleLeftAnimation.getKeyFrame(stateTime, true));
+            }
+        }
+
+        batch.draw(currentFrame, b2body.getPosition().x -8, b2body.getPosition().y -14);
+        rect.setPosition(new Vector2 (b2body.getPosition().x -8, b2body.getPosition().y -15));
     }
 
     public void saltar(float dt){
-        //mover(new Vector2(0,10));
+        if ( !isJumping ) {
+            //b2body.applyLinearImpulse(new Vector2(0, 4*100f), b2body.getWorldCenter(), true);
+            b2body.setLinearVelocity(new Vector2(b2body.getLinearVelocity().x, 20600).scl(velocidad));
+            isJumping = true;
+        }
 
-        //b2body.applyLinearImpulse(new Vector2(0,10*PPM),b2body.getWorldCenter(), true);
-
-        float impulse = b2body.getMass() * 1000;
-        b2body.applyLinearImpulse( new Vector2(0,impulse),b2body.getWorldCenter(), true );
+        //b2body.applyLinearImpulse(new Vector2(0,500),b2body.getWorldCenter(), true);
+        //b2body.setLinearVelocity(b2body.getLinearVelocity().x, 1000);
     }
 
     public void moverDerecha(){
-        //mover(new Vector2(1,0));
 
-        textura = new Texture("personaje/pj_der.png");
-        b2body.applyLinearImpulse(new Vector2(0.1f*PPM,0),b2body.getWorldCenter(), true);
+        estado = Estado.RUN_RIGHT;
+        //b2body.applyLinearImpulse(new Vector2(100,0),b2body.getWorldCenter(), true);
+        //b2body.setLinearVelocity(100,b2body.getLinearVelocity().y);
+        b2body.applyForce(new Vector2(200f,b2body.getLinearVelocity().y).scl(velocidad),b2body.getWorldCenter(), true);
     }
 
     public void moverIzquierda(){
-        //mover(new Vector2(-1,0));
 
-        textura = new Texture("personaje/pj_izq.png");
-        b2body.applyLinearImpulse(new Vector2(-0.1f*PPM,0),b2body.getWorldCenter(), true);
+        estado = Estado.RUN_LEFT;
+        //b2body.applyLinearImpulse(new Vector2(-100,0),b2body.getWorldCenter(), true);
+        //b2body.setLinearVelocity(-100,b2body.getLinearVelocity().y);
+        b2body.applyForce(new Vector2(-200f,b2body.getLinearVelocity().y).scl(velocidad),b2body.getWorldCenter(), true);
     }
 
     public Vector2 getPosicion() {
@@ -110,11 +149,11 @@ public class Personaje extends Sprite {
         this.posicion = posicion;
     }
 
-    public Texture getTextura() {
+    public TextureRegion getTextura() {
         return textura;
     }
 
-    public void setTextura(Texture textura) {
+    public void setTextura(TextureRegion textura) {
         this.textura = textura;
     }
 
@@ -135,6 +174,6 @@ public class Personaje extends Sprite {
     }
 
     public void disparar(Vector3 target){
-        balas.add(new BalaPj(new Vector2(b2body.getPosition().x, b2body.getPosition().y),new Texture("balas/bala.png"), target));
+        balas.add(new BalaPj(new Vector2(b2body.getPosition().x, b2body.getPosition().y),texturaBala, target));
     }
 }
