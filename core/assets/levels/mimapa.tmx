@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.2" tiledversion="1.3.2" orientation="orthogonal" renderorder="right-down" compressionlevel="0" width="160" height="15" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="42">
+<map version="1.2" tiledversion="1.3.2" orientation="orthogonal" renderorder="right-down" compressionlevel="0" width="160" height="15" tilewidth="16" tileheight="16" infinite="0" nextlayerid="13" nextobjectid="93">
  <tileset firstgid="1" name="nature-paltformer-tileset-16x16" tilewidth="16" tileheight="16" tilecount="77" columns="7">
   <image source="nature-paltformer-tileset-16x16.png" width="112" height="176"/>
  </tileset>
@@ -15,7 +15,7 @@
  </layer>
  <layer id="4" name="terreno" width="160" height="15">
   <data encoding="base64" compression="zlib">
-   eAHtV8tOxDAMLCysWEACbnvjxpX//ztiqbPyjsZu+kCqKq8UJX6N7UnSdoehfsVAMVAMFAPFQDFQDBQDxUAxUAwUA8VAMXBEBn6P2FT1dMfA9U7aj/DUSnlu4zyW9Laf0qqSDRn43hBrT1DZvcps3EPkG+k5vuScgZ/cvAsr9tqeiXgeThWW3avMxriRb6Tn+KPJ2Ist+npoIKcZQFvmnpF2WLLX2b2KbOp7M/KN9Kqv/+RtDfac+4y+pvaCMVkGjs0vbbx6RVtn/lO5Ceom8rcbyzfHtlC2aK/t/jy24e+Q1W86P85Nxg8x3r507fMCX829vKneFZ7X9WL7mGwNfqLesBfqrma4sAHfcx7lQgxm5IYczdEZVvyar/+fAUxVp9Xsa/1o8mcbXwgaZ9NfxsE2u3OwrZ357o7pB96bXt4Q72fG8jZbMzZzPyUznvHz3gZ6Q35/Xnjt94TxWFb8Ixf7mhydgzU1qDysU3Xaeclq9RgWr3wj3CVnUeH38sX8+dptDRy/t3yWlA/jzJGBx7WZnPGjeIjyKv6zeOWvaskwoloyfZS3N4/FK98IV/U0pdsSn7lAnSoHfHt84Nsz23vD3idq/AFu2AvK
+   eAHtWMtOAzEMLK+KAhJw48aNa///77AlprJGtuPsLmiLvFKUh+3xeJJ02x4O/bQCrUAr0Aq0Aq1AK9AKtAKtQCvQCmypwHlLsMZqBSYUuBffB2nHiZh2vW4FPnZO/3nn/JreOgU+14X/ebR+RlY+H7N7ldmqBW2BUc31n/2+rqC4JXud3avMVpVjC4xqrj35LdmLiP+NGO4io7O+ZW4HPlxastfZvcpsIQkyzGD8pm5rsKvvElv6aC8Yk+cW61EmT3ZBxpn/KDdBXab8HY7nF0cZeLZor/X+3Eqzd0j565ptR5njQQzsNhY+WW/jq7FV3bzaMy5qq2KPcGBHfVFt2Iul/1MAH/prH+UCJ/TIjXnUR2fY01d9vd+8Hk/m+iqxb9LeiYiun34a2/TOwaY93z9ZCh/lVInlvanq5iVmLPZhbNZ+NGc81edFGnRBfnteeFw9P5qL9R/tQXQO1nBQHqPH4zniajE1Hhryuj1DOuZaojnHefhVvWwOb/+AY218ljwfW+vsGHiWG8Zcu517OkS5vX3N4j1/mxvjDCPikq1Heat5Zs4fapjtPS4R7ww7w/Fs0A25Mh/4Vnp9b+j7xGvfVW4Kgw==
   </data>
  </layer>
  <objectgroup color="#aa0000" id="6" name="colisiones">
@@ -32,15 +32,15 @@
   <object id="20" x="816" y="176" width="16" height="16"/>
   <object id="21" x="864" y="192" width="48" height="16"/>
   <object id="22" x="928" y="176" width="16" height="16"/>
-  <object id="23" x="960" y="112" width="48" height="16"/>
-  <object id="24" x="1024" y="112" width="16" height="16"/>
-  <object id="25" x="1040" y="144" width="32" height="16"/>
+  <object id="23" x="912" y="96" width="48" height="16"/>
+  <object id="24" x="992" y="112" width="16" height="16"/>
+  <object id="25" x="1056" y="128" width="32" height="16"/>
   <object id="26" x="960" y="192" width="112" height="48"/>
   <object id="27" x="1104" y="176" width="48" height="32"/>
   <object id="28" x="1184" y="177.333" width="94" height="14.6667"/>
   <object id="29" x="1200" y="192" width="64" height="16"/>
   <object id="30" x="1216" y="208" width="32" height="32"/>
-  <object id="31" x="1312" y="176" width="318.667" height="64"/>
+  <object id="31" x="1312" y="176" width="80" height="64"/>
   <object id="32" x="1696" y="208" width="224" height="32"/>
   <object id="33" x="1984" y="208" width="48" height="32"/>
   <object id="34" x="1936" y="176" width="16" height="16"/>
@@ -51,5 +51,119 @@
   <object id="39" x="2336" y="192" width="32" height="16"/>
   <object id="40" x="2384" y="159.333" width="32" height="16.6667"/>
   <object id="41" x="2448" y="208" width="112.667" height="32"/>
+  <object id="42" x="1392" y="208" width="240" height="32"/>
+  <object id="43" x="1568" y="176" width="64" height="32"/>
+  <object id="44" x="1552" y="192" width="16" height="16"/>
+ </objectgroup>
+ <objectgroup id="12" name="topeEnemigos">
+  <object id="80" x="656" y="192" width="16" height="16"/>
+  <object id="81" x="464" y="192" width="16" height="16"/>
+  <object id="84" x="1376" y="192" width="16" height="16"/>
+  <object id="85" x="1552" y="192" width="16" height="16"/>
+  <object id="86" x="1680" y="192" width="16" height="16"/>
+  <object id="87" x="1920" y="192" width="16" height="16"/>
+ </objectgroup>
+ <objectgroup id="10" name="coins">
+  <object id="49" x="164.227" y="130.364" width="7.5" height="10.5">
+   <ellipse/>
+  </object>
+  <object id="50" x="179.795" y="130.205" width="7.5" height="10.5">
+   <ellipse/>
+  </object>
+  <object id="51" x="228.045" y="130.875" width="7.5" height="10.5">
+   <ellipse/>
+  </object>
+  <object id="52" x="244.125" y="130.5" width="7.5" height="10.5">
+   <ellipse/>
+  </object>
+  <object id="53" x="580.159" y="162.568" width="7.5" height="10.5">
+   <ellipse/>
+  </object>
+  <object id="54" x="628.068" y="162.568" width="7.5" height="10.5">
+   <ellipse/>
+  </object>
+  <object id="55" x="708.125" y="146.625" width="7.5" height="10.5">
+   <ellipse/>
+  </object>
+  <object id="56" x="788.25" y="146.625" width="7.5" height="10.5">
+   <ellipse/>
+  </object>
+  <object id="57" x="931.625" y="66.5" width="7.5" height="10.5">
+   <ellipse/>
+  </object>
+  <object id="58" x="1156.07" y="130.568" width="7.5" height="10.5">
+   <ellipse/>
+  </object>
+  <object id="59" x="1284.25" y="130.568" width="7.5" height="10.5">
+   <ellipse/>
+  </object>
+  <object id="60" x="1412.02" y="194.795" width="7.5" height="10.5">
+   <ellipse/>
+  </object>
+  <object id="61" x="1476.25" y="194.25" width="7.5" height="10.5">
+   <ellipse/>
+  </object>
+  <object id="62" x="1508.25" y="194.5" width="7.5" height="10.5">
+   <ellipse/>
+  </object>
+  <object id="63" x="1731.92" y="162.75" width="7.5" height="10.5">
+   <ellipse/>
+  </object>
+  <object id="64" x="1828.04" y="178.75" width="7.5" height="10.5">
+   <ellipse/>
+  </object>
+  <object id="65" x="1876.01" y="178.75" width="7.5" height="10.5">
+   <ellipse/>
+  </object>
+  <object id="66" x="2212.43" y="162.386" width="7.5" height="10.5">
+   <ellipse/>
+  </object>
+  <object id="67" x="2228.43" y="162.75" width="7.5" height="10.5">
+   <ellipse/>
+  </object>
+  <object id="68" x="2275.89" y="162.386" width="7.5" height="10.5">
+   <ellipse/>
+  </object>
+  <object id="69" x="2292.25" y="162.75" width="7.5" height="10.5">
+   <ellipse/>
+  </object>
+  <object id="70" x="2340.07" y="130.75" width="7.5" height="10.5">
+   <ellipse/>
+  </object>
+  <object id="71" x="2436.25" y="114.568" width="7.5" height="10.5">
+   <ellipse/>
+  </object>
+  <object id="72" x="1444.43" y="194.568" width="7.5" height="10.5">
+   <ellipse/>
+  </object>
+  <object id="73" x="1396.25" y="130.083" width="7.5" height="10.5">
+   <ellipse/>
+  </object>
+  <object id="74" x="1427.75" y="178.75" width="7.5" height="10.5">
+   <ellipse/>
+  </object>
+  <object id="75" x="1459.5" y="178.25" width="7.5" height="10.5">
+   <ellipse/>
+  </object>
+  <object id="76" x="1491.5" y="178.75" width="7.5" height="10.5">
+   <ellipse/>
+  </object>
+  <object id="77" x="1524" y="178.75" width="7.5" height="10.5">
+   <ellipse/>
+  </object>
+  <object id="90" x="1028.25" y="82.5" width="7.5" height="10.5">
+   <ellipse/>
+  </object>
+  <object id="91" x="436.25" y="130.75" width="7.5" height="10.5">
+   <ellipse/>
+  </object>
+  <object id="92" x="2052.25" y="162.25" width="7.5" height="10.5">
+   <ellipse/>
+  </object>
+ </objectgroup>
+ <objectgroup id="11" name="enemigos">
+  <object id="78" x="1392" y="192" width="16" height="16"/>
+  <object id="79" x="576" y="192" width="16" height="16"/>
+  <object id="88" x="1808" y="192" width="16" height="16"/>
  </objectgroup>
 </map>

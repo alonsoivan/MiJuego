@@ -1,6 +1,7 @@
 package com.ivn.mijuego.model;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Rectangle;
@@ -9,7 +10,8 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 
-import static com.ivn.mijuego.util.Constantes.SPEED;
+import static com.ivn.mijuego.util.Constantes.PERSONAJE_SPEED;
+
 
 public class Personaje extends Sprite {
 
@@ -40,13 +42,16 @@ public class Personaje extends Sprite {
     private Animation runLeftAnimation;
     float stateTime;
 
+    // Sonido disparo
+    public static Sound soundDisparo = Gdx.audio.newSound(Gdx.files.internal("personaje/disparo.wav"));
+
     public Personaje(Vector2 posicion, int vidas, World world) {
 
         this.balas = new Array<>();
 
         this.posicion = posicion;
         this.vidas = vidas;
-        this.velocidad = SPEED;
+        this.velocidad = PERSONAJE_SPEED;
         this.textura = new TextureAtlas(Gdx.files.internal("personaje/runLeft.atlas")).findRegions("run").get(0);
         this.rect = new Rectangle(posicion.x,posicion.y, textura.getRegionWidth(), textura.getRegionHeight());
         this.world = world;
@@ -174,6 +179,7 @@ public class Personaje extends Sprite {
     }
 
     public void disparar(Vector3 target){
+        soundDisparo.play(0.7f);
         balas.add(new BalaPj(new Vector2(b2body.getPosition().x, b2body.getPosition().y),texturaBala, target));
     }
 }

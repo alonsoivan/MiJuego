@@ -8,7 +8,7 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.MapProperties;
+import com.badlogic.gdx.maps.objects.EllipseMapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -19,10 +19,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
-import com.ivn.mijuego.model.BalaOvni;
-import com.ivn.mijuego.model.BalaPj;
-import com.ivn.mijuego.model.Ovni;
-import com.ivn.mijuego.model.Personaje;
+import com.ivn.mijuego.model.*;
 
 import static com.ivn.mijuego.util.Constantes.*;
 
@@ -30,6 +27,9 @@ public class GameScreen implements Screen {
 
     private Personaje personaje;
     private Array<Ovni> ovnis;
+    private Array<Coin> coins;
+    private Array<EnemigoTerrestre> enemigosTerrestres;
+    private Array<Rectangle> topeEnemigos;
 
     // CURSOR
     Pixmap cursorPixmap = new Pixmap(Gdx.files.internal("cursor/cursor1.png"));
@@ -50,7 +50,6 @@ public class GameScreen implements Screen {
     private World world;
     //private Box2DDebugRenderer b2dr;
 
-
     public GameScreen(){
 
         // FPS
@@ -58,7 +57,8 @@ public class GameScreen implements Screen {
         sinceChange = 0;
         frameRate = Gdx.graphics.getFramesPerSecond();
         font = new BitmapFont();
-        font.setColor(Color.RED);
+        font.setColor(Color.WHITE);
+        font.getData().setScale(0.5f);
 
 
         world = new World(new Vector2(0,-10f),true);
@@ -79,11 +79,10 @@ public class GameScreen implements Screen {
         FixtureDef fdef = new FixtureDef();
         Body body;
 
+
         for (MapObject object : map.getLayers().get(3).getObjects().getByType(RectangleMapObject.class)) {
 
-
             Rectangle rect = ((RectangleMapObject)object).getRectangle();
-
 
             bdef.type = BodyDef.BodyType.StaticBody;
             bdef.position.set(rect.getX() + rect.getWidth() / 2, rect.getY() + rect.getHeight() / 2);
@@ -102,8 +101,14 @@ public class GameScreen implements Screen {
             shape.dispose();
         }
 
+        coins = new Array<>();
         personaje = new Personaje(new Vector2(40,90), 5, world);
         ovnis = new Array<>();
+        enemigosTerrestres = new Array<>();
+        topeEnemigos = new Array<>();
+
+        generarCoins();
+        generarEnemigosTerrestres();
     }
 
     @Override
@@ -111,6 +116,7 @@ public class GameScreen implements Screen {
         // CURSOR
         Gdx.graphics.setCursor(Gdx.graphics.newCursor(cursorPixmap, 0, 0));
 
+        getTopeEnemigos();
     }
 
     @Override
@@ -120,6 +126,15 @@ public class GameScreen implements Screen {
         pintar(dt);
     }
 
+    private void getTopeEnemigos(){
+        // Obtiene todos los objetos de la capa 'colision'
+        MapLayer collisionsLayer = map.getLayers().get("topeEnemigos");
+
+        for (MapObject object : collisionsLayer.getObjects())
+            topeEnemigos.add(((RectangleMapObject) object).getRectangle());
+
+    }
+
     private void pintar(float dt) {
         handleCamera();
 
@@ -127,20 +142,29 @@ public class GameScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         //Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
 
-        renderer.render();
 
+        renderer.render();
         //b2dr.render(world,camera.combined);
 
         batch.begin();
 
-        font.draw(batch, (int)frameRate + " fps", 30, 30);
+        font.draw(batch, (int)frameRate + " FPS", camera.position.x-230, camera.position.y+110);
 
         personaje.pintar(batch);
 
         for(Ovni ovni : ovnis)
             ovni.pintar(batch);
 
+
+        for(Coin coin : coins)
+            coin.pintar(batch);
+
+
+        for(EnemigoTerrestre terrestre : enemigosTerrestres)
+            terrestre.pintar(batch);
+
         batch.end();
+
 
     }
 
@@ -182,7 +206,7 @@ public class GameScreen implements Screen {
 
     }
 
-    private void generarEnemigos(){
+    private void generarEnemigosVoladores(){
 
         /*
             Timer.schedule(new Timer.Task() {
@@ -194,6 +218,20 @@ public class GameScreen implements Screen {
          */
         ovnis.add(new Ovni(new Vector2(-50,210), new Texture("ovni/ovni.png")));
     }
+
+    private void generarEnemigosTerrestres(){
+        // Obtiene todos los objetos de la capa 'colision'
+        MapLayer collisionsLayer = map.getLayers().get("enemigos");
+
+        for (MapObject object : collisionsLayer.getObjects()) {
+            RectangleMapObject rectangleObject = (RectangleMapObject) object;
+
+            Rectangle rect = rectangleObject.getRectangle();
+
+            enemigosTerrestres.add(new EnemigoTerrestre(new Vector2(rect.x, rect.y)));
+        }
+    }
+
 
     private void moverBalas(){
         for(BalaPj bala : personaje.balas)
@@ -207,6 +245,26 @@ public class GameScreen implements Screen {
     private void moverEnemigos(){
         for(Ovni ovni : ovnis)
             ovni.mover(personaje.b2body.getPosition());
+
+        for(EnemigoTerrestre ene : enemigosTerrestres)
+            ene.mover(topeEnemigos);
+    }
+
+
+    private void generarCoins(){
+        // Obtiene todos los objetos de la capa 'colision'
+        MapLayer collisionsLayer = map.getLayers().get("coins");
+
+        for (MapObject object : collisionsLayer.getObjects()) {
+            //RectangleMapObject rectangleObject = (RectangleMapObject) object;
+
+            EllipseMapObject circleMapObject = (EllipseMapObject) object;
+
+            // Caso 3: Obtiene el rectangulo ocupado por el objeto
+            //Rectangle rect = circleMapObject.getRectangle();
+
+            coins.add(new Coin(new Vector2(circleMapObject.getEllipse().x, circleMapObject.getEllipse().y)));
+        }
     }
 
     private void comprobarColisiones(){
@@ -216,8 +274,6 @@ public class GameScreen implements Screen {
 
         for (MapObject object : collisionsLayer.getObjects()) {
             RectangleMapObject rectangleObject = (RectangleMapObject) object;
-
-
 
             // Caso 3: Obtiene el rectangulo ocupado por el objeto
             Rectangle rect = rectangleObject.getRectangle();
@@ -242,8 +298,14 @@ public class GameScreen implements Screen {
                 if (bala.rect.overlaps(ovni.rect)){
                     ovnis.removeValue(ovni, true);
                     personaje.balas.removeValue(bala, true);
-                    generarEnemigos();
+                    generarEnemigosVoladores();
                 }
+
+        for(Coin coin: coins)
+            if(personaje.rect.overlaps(coin.rect)){
+                Coin.soundCoin.play(0.7f);
+                coins.removeValue(coin, true);
+            }
 
         for(BalaOvni  balaOvni :  Ovni.balas)
             if(balaOvni.rect.overlaps(new Rectangle(personaje.b2body.getPosition().x -8 ,personaje.b2body.getPosition().y -14,personaje.getTextura().getRegionWidth(),personaje.getTextura().getRegionHeight())))
@@ -266,7 +328,7 @@ public class GameScreen implements Screen {
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE))
             //personaje.disparar(getMousePosInGameWorld());
-            generarEnemigos();
+            generarEnemigosVoladores();
 
         if(Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)){
             personaje.disparar(getMousePosInGameWorld());
@@ -279,6 +341,9 @@ public class GameScreen implements Screen {
     }
 
     public void update() {
+
+        // FPS
+
         long delta = TimeUtils.timeSinceMillis(lastTimeCounted);
         lastTimeCounted = TimeUtils.millis();
 
@@ -323,5 +388,6 @@ public class GameScreen implements Screen {
 
         for(Ovni ovni : ovnis)
             ovni.texture.dispose();
+
     }
 }
