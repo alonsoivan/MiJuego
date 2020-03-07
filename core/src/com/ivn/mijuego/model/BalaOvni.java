@@ -17,7 +17,6 @@ public class BalaOvni {
         this.position = position;
         this.texture = texture;
         this.rect = new Rectangle(position.x, position.y, texture.getWidth(), texture.getHeight());
-
     }
 
     public void pintar(Batch batch){

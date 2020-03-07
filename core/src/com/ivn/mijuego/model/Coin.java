@@ -15,6 +15,7 @@ public class Coin {
     public Rectangle rect;
     public float stateTime;
     public static Animation animationCoin = new Animation(0.15f, new TextureAtlas(Gdx.files.internal("coin/coin.atlas")).findRegions("coin"));
+
     public static Sound soundCoin = Gdx.audio.newSound(Gdx.files.internal("coin/coin.wav"));
 
     public Coin(Vector2 posicion) {

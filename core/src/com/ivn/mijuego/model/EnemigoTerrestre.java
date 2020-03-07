@@ -9,6 +9,8 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
+import javax.swing.*;
+
 import static com.ivn.mijuego.util.Constantes.ENEMIGO_SPEED;
 import static com.ivn.mijuego.util.Constantes.ENEMIGO_VIDA;
 
@@ -54,5 +56,13 @@ public class EnemigoTerrestre {
             position.add(new Vector2(-1,0).scl(velocidad));
 
         rect.setPosition(position);
+    }
+
+    public void quitarVida(){
+        vida--;
+    }
+
+    public boolean estaMuerto(){
+        return vida > 0 ? false : true;
     }
 }

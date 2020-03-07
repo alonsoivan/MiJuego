@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Timer;
 
 import static com.ivn.mijuego.util.Constantes.PERSONAJE_SPEED;
 
@@ -27,6 +28,9 @@ public class Personaje extends Sprite {
     public boolean isJumping = false;
     public Array<BalaPj> balas;
     private Estado estado;
+    public int coins;
+
+    public boolean isInmune;
 
     public Texture texturaBala;
 
@@ -42,10 +46,13 @@ public class Personaje extends Sprite {
     private Animation runLeftAnimation;
     float stateTime;
 
-    // Sonido disparo
-    public static Sound soundDisparo = Gdx.audio.newSound(Gdx.files.internal("personaje/disparo.wav"));
+    // Sonidos
+    public static Sound shotSound = Gdx.audio.newSound(Gdx.files.internal("personaje/disparo.wav"));
+    public static Sound hitSound = Gdx.audio.newSound(Gdx.files.internal("personaje/hit2.mp3"));
+
 
     public Personaje(Vector2 posicion, int vidas, World world) {
+        this.coins = 0;
 
         this.balas = new Array<>();
 
@@ -69,7 +76,7 @@ public class Personaje extends Sprite {
         idleLeftAnimation = new Animation(0.15f, new TextureAtlas(Gdx.files.internal("personaje/idleLeft.atlas")).findRegions("idle"));
         runRightAnimation = new Animation(0.15f, new TextureAtlas(Gdx.files.internal("personaje/runRight.atlas")).findRegions("run"));
         runLeftAnimation = new Animation(0.15f, new TextureAtlas(Gdx.files.internal("personaje/runLeft.atlas")).findRegions("run"));
-
+        //runLeftAnimation = new Animation(0.15f, new TextureAtlas(Gdx.files.internal("personaje/golpeado.atlas")).findRegions("golpeado"));
     }
 
     public void definePersonaje(){
@@ -114,6 +121,7 @@ public class Personaje extends Sprite {
                 currentFrame = (TextureRegion) (idleLeftAnimation.getKeyFrame(stateTime, true));
             }
         }
+
 
         batch.draw(currentFrame, b2body.getPosition().x -8, b2body.getPosition().y -14);
         rect.setPosition(new Vector2 (b2body.getPosition().x -8, b2body.getPosition().y -15));
@@ -179,7 +187,36 @@ public class Personaje extends Sprite {
     }
 
     public void disparar(Vector3 target){
-        soundDisparo.play(0.7f);
+        shotSound.play(0.7f);
         balas.add(new BalaPj(new Vector2(b2body.getPosition().x, b2body.getPosition().y),texturaBala, target));
+    }
+
+    public void quitarVida(){
+        if(!isInmune) {
+            vidas--;
+            hitSound.play(0.7f);
+            empujar();
+            if(estaMuerto())
+                System.exit(0);
+            getInmunidad();
+        }
+    }
+
+    public void empujar(){
+        b2body.setLinearVelocity(new Vector2(-15, 15).scl(velocidad));
+    }
+
+    public boolean estaMuerto(){
+        return vidas > 0 ? false : true;
+    }
+
+    public void getInmunidad(){
+        isInmune = true;
+
+        Timer.schedule(new Timer.Task() {
+            public void run() {
+                isInmune = false;
+            }
+        }, 3);
     }
 }

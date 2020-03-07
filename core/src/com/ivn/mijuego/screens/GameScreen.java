@@ -4,6 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.maps.MapLayer;
@@ -26,19 +27,24 @@ import static com.ivn.mijuego.util.Constantes.*;
 public class GameScreen implements Screen {
 
     private Personaje personaje;
-    private Array<Ovni> ovnis;
+    private Array<EnemigoVolador> ovnis;
     private Array<Coin> coins;
     private Array<EnemigoTerrestre> enemigosTerrestres;
     private Array<Rectangle> topeEnemigos;
 
+    // SOUNDS
+    public static Sound hitSound = Gdx.audio.newSound(Gdx.files.internal("personaje/hit3.mp3"));
+
     // CURSOR
-    Pixmap cursorPixmap = new Pixmap(Gdx.files.internal("cursor/cursor1.png"));
+    private Pixmap cursorPixmap = new Pixmap(Gdx.files.internal("cursor/cursor1.png"));
 
     // FPS
     long lastTimeCounted;
     private float sinceChange;
     private float frameRate;
-    private BitmapFont font;
+    private BitmapFont fps;
+    private BitmapFont vidaPantalla;
+    private BitmapFont coinsPantalla;
 
     // TiledMap
     private Batch batch;
@@ -56,9 +62,19 @@ public class GameScreen implements Screen {
         lastTimeCounted = TimeUtils.millis();
         sinceChange = 0;
         frameRate = Gdx.graphics.getFramesPerSecond();
-        font = new BitmapFont();
-        font.setColor(Color.WHITE);
-        font.getData().setScale(0.5f);
+        fps = new BitmapFont();
+        fps.setColor(Color.WHITE);
+        fps.getData().setScale(0.5f);
+
+        // Vida
+        vidaPantalla = new BitmapFont();
+        vidaPantalla.setColor(Color.WHITE);
+        vidaPantalla.getData().setScale(0.5f);
+
+        // COins
+        coinsPantalla= new BitmapFont();
+        coinsPantalla.setColor(Color.WHITE);
+        coinsPantalla.getData().setScale(0.5f);
 
 
         world = new World(new Vector2(0,-10f),true);
@@ -68,7 +84,7 @@ public class GameScreen implements Screen {
         camera.setToOrtho(false, TILES_IN_CAMERA_WIDTH * TILE_WIDTH, TILES_IN_CAMERA_HEIGHT * TILE_WIDTH);
         camera.update();
 
-        map = new TmxMapLoader().load("levels/mimapa.tmx");
+        map = new TmxMapLoader().load("levels/nivel1.tmx");
         renderer = new OrthogonalTiledMapRenderer(map, 1);
         batch = renderer.getBatch();
 
@@ -102,7 +118,7 @@ public class GameScreen implements Screen {
         }
 
         coins = new Array<>();
-        personaje = new Personaje(new Vector2(40,90), 5, world);
+        personaje = new Personaje(new Vector2(40,90), VIDA_PERSONAJE, world);
         ovnis = new Array<>();
         enemigosTerrestres = new Array<>();
         topeEnemigos = new Array<>();
@@ -111,13 +127,18 @@ public class GameScreen implements Screen {
         generarEnemigosTerrestres();
     }
 
+
+    long tiempo;
     @Override
     public void show() {
         // CURSOR
         Gdx.graphics.setCursor(Gdx.graphics.newCursor(cursorPixmap, 0, 0));
 
         getTopeEnemigos();
+
+        tiempo = TimeUtils.millis();
     }
+
 
     @Override
     public void render(float dt) {
@@ -148,12 +169,16 @@ public class GameScreen implements Screen {
 
         batch.begin();
 
-        font.draw(batch, (int)frameRate + " FPS", camera.position.x-230, camera.position.y+110);
+        fps.draw(batch, (int)frameRate + " FPS", camera.position.x-230, camera.position.y + 110);
+        vidaPantalla.draw(batch, "Vida x "+personaje.getVidas() , camera.position.x-230, camera.position.y + 100);
+        coinsPantalla.draw(batch, "Coins x "+personaje.coins, camera.position.x -230, camera.position.y + 80);
+        //vidaPantalla.draw(batch, "TIEMPO x "+(TimeUtils.millis()-tiempo)/1000 , camera.position.x-230, camera.position.y+100);
+
 
         personaje.pintar(batch);
 
-        for(Ovni ovni : ovnis)
-            ovni.pintar(batch);
+        for(EnemigoVolador enemigoVolador : ovnis)
+            enemigoVolador.pintar(batch);
 
 
         for(Coin coin : coins)
@@ -163,9 +188,8 @@ public class GameScreen implements Screen {
         for(EnemigoTerrestre terrestre : enemigosTerrestres)
             terrestre.pintar(batch);
 
+
         batch.end();
-
-
     }
 
     private void handleCamera() {
@@ -174,7 +198,38 @@ public class GameScreen implements Screen {
             camera.position.set(TILES_IN_CAMERA_WIDTH * TILE_WIDTH / 2, TILES_IN_CAMERA_HEIGHT * TILE_WIDTH / 2 , 0);
         else
             camera.position.set(personaje.b2body.getPosition().x, TILES_IN_CAMERA_HEIGHT * TILE_WIDTH / 2 , 0);
+/*
+        camera.update();
+        renderer.setView(camera);
+*/
 
+// These values likely need to be scaled according to your world coordinates.
+// The left boundary of the map (x)
+        int mapLeft = 0;
+// The right boundary of the map (x + width)
+        float mapRight = TILES_IN_CAMERA_WIDTH * TILE_WIDTH * 5.33f ;
+// The camera dimensions, halved
+        float cameraHalfWidth = camera.viewportWidth * .5f;
+
+// Move camera after player as normal
+
+        float cameraLeft = camera.position.x - cameraHalfWidth;
+        float cameraRight = camera.position.x + cameraHalfWidth;
+
+
+// Horizontal axis
+        if(mapRight < camera.viewportWidth)
+        {
+            camera.position.x = mapRight / 2;
+        }
+        else if(cameraLeft <= mapLeft)
+        {
+            camera.position.x = mapLeft + cameraHalfWidth;
+        }
+        else if(cameraRight >= mapRight)
+        {
+            camera.position.x = mapRight - cameraHalfWidth;
+        }
         camera.update();
         renderer.setView(camera);
 
@@ -216,7 +271,7 @@ public class GameScreen implements Screen {
             }, 1, 1);
 
          */
-        ovnis.add(new Ovni(new Vector2(-50,210), new Texture("ovni/ovni.png")));
+        ovnis.add(new EnemigoVolador(new Vector2(-50,210)));
     }
 
     private void generarEnemigosTerrestres(){
@@ -237,19 +292,18 @@ public class GameScreen implements Screen {
         for(BalaPj bala : personaje.balas)
             bala.mover();
 
-        for(Ovni ovni : ovnis)
-            for(BalaOvni balaOvni : ovni.balas)
+        for(EnemigoVolador enemigoVolador : ovnis)
+            for(BalaOvni balaOvni : enemigoVolador.balas)
                 balaOvni.mover();
     }
 
     private void moverEnemigos(){
-        for(Ovni ovni : ovnis)
-            ovni.mover(personaje.b2body.getPosition());
+        for(EnemigoVolador enemigoVolador : ovnis)
+            enemigoVolador.mover(personaje.b2body.getPosition());
 
         for(EnemigoTerrestre ene : enemigosTerrestres)
             ene.mover(topeEnemigos);
     }
-
 
     private void generarCoins(){
         // Obtiene todos los objetos de la capa 'colision'
@@ -286,31 +340,54 @@ public class GameScreen implements Screen {
                     personaje.balas.removeValue(bala, true);
                 }
 
-            for(BalaOvni bala : Ovni.balas) {
+            for(BalaOvni bala : EnemigoVolador.balas) {
                 if (bala.rect.overlaps(rect)) {
-                    Ovni.balas.removeValue(bala, true);
+                    EnemigoVolador.balas.removeValue(bala, true);
                 }
             }
         }
 
-        for(Ovni ovni : ovnis)
+        for(EnemigoVolador enemigoVolador : ovnis)
             for(BalaPj bala : personaje.balas)
-                if (bala.rect.overlaps(ovni.rect)){
-                    ovnis.removeValue(ovni, true);
+                if (bala.rect.overlaps(enemigoVolador.rect)){
                     personaje.balas.removeValue(bala, true);
-                    generarEnemigosVoladores();
+                    enemigoVolador.quitarVida();
+                    hitSound.play(0.7f);
+                    if(enemigoVolador.estaMuerto()) {
+                        ovnis.removeValue(enemigoVolador, true);
+                        generarEnemigosVoladores();
+                    }
                 }
 
         for(Coin coin: coins)
             if(personaje.rect.overlaps(coin.rect)){
                 Coin.soundCoin.play(0.7f);
                 coins.removeValue(coin, true);
+                personaje.coins++;
             }
 
-        for(BalaOvni  balaOvni :  Ovni.balas)
-            if(balaOvni.rect.overlaps(new Rectangle(personaje.b2body.getPosition().x -8 ,personaje.b2body.getPosition().y -14,personaje.getTextura().getRegionWidth(),personaje.getTextura().getRegionHeight())))
-                Ovni.balas.removeValue(balaOvni, true);
+        for(BalaOvni  balaOvni :  EnemigoVolador.balas)
+            if(balaOvni.rect.overlaps(new Rectangle(personaje.b2body.getPosition().x -8 ,personaje.b2body.getPosition().y -14,personaje.getTextura().getRegionWidth(),personaje.getTextura().getRegionHeight()))){
+                EnemigoVolador.balas.removeValue(balaOvni, true);
+                personaje.quitarVida();
+            }
 
+
+        for(EnemigoTerrestre enemigoTerrestre: enemigosTerrestres) {
+            if (enemigoTerrestre.rect.overlaps(personaje.rect))
+                personaje.quitarVida();
+
+            for (BalaPj balaPj : personaje.balas)
+                if (enemigoTerrestre.rect.overlaps(balaPj.rect)) {
+                    hitSound.play(0.7f);
+                    personaje.balas.removeValue(balaPj, true);
+                    enemigoTerrestre.quitarVida();
+                    if (enemigoTerrestre.estaMuerto()) {
+                        enemigosTerrestres.removeValue(enemigoTerrestre, true);
+                        coins.add(new Coin(new Vector2(enemigoTerrestre.rect.x, enemigoTerrestre.rect.y)));
+                    }
+                }
+        }
     }
 
     private void comprobarTeclado(float dt) {
@@ -337,13 +414,11 @@ public class GameScreen implements Screen {
         if(Gdx.input.isKeyPressed(Input.Keys.R)){
             ((Game) Gdx.app.getApplicationListener()).setScreen(new GameScreen());
         }
-
     }
 
     public void update() {
 
         // FPS
-
         long delta = TimeUtils.timeSinceMillis(lastTimeCounted);
         lastTimeCounted = TimeUtils.millis();
 
@@ -384,10 +459,7 @@ public class GameScreen implements Screen {
 
         personaje.texturaBala.dispose();
 
-        font.dispose();
-
-        for(Ovni ovni : ovnis)
-            ovni.texture.dispose();
+        fps.dispose();
 
     }
 }
