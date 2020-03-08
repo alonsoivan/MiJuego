@@ -7,6 +7,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.EllipseMapObject;
@@ -24,16 +25,13 @@ import com.ivn.mijuego.model.*;
 
 import static com.ivn.mijuego.util.Constantes.*;
 
-public class GameScreen implements Screen {
+public class GameScreen1 implements Screen {
 
     private Personaje personaje;
     private Array<EnemigoVolador> ovnis;
     private Array<Coin> coins;
-    private Array<EnemigoTerrestre> enemigosTerrestres;
+    private Array<EnemigoTerrestre1> enemigosTerrestres;
     private Array<Rectangle> topeEnemigos;
-
-    // SOUNDS
-    public static Sound hitSound = Gdx.audio.newSound(Gdx.files.internal("personaje/hit3.mp3"));
 
     // CURSOR
     private Pixmap cursorPixmap = new Pixmap(Gdx.files.internal("cursor/cursor1.png"));
@@ -42,6 +40,10 @@ public class GameScreen implements Screen {
     long lastTimeCounted;
     private float sinceChange;
     private float frameRate;
+
+    FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/LemonMilk.otf"));
+    FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+
     private BitmapFont fps;
     private BitmapFont vidaPantalla;
     private BitmapFont coinsPantalla;
@@ -56,15 +58,16 @@ public class GameScreen implements Screen {
     private World world;
     //private Box2DDebugRenderer b2dr;
 
-    public GameScreen(){
+    public GameScreen1(){
+
+        parameter.size = 16;
+        parameter.color = Color.RED;
 
         // FPS
         lastTimeCounted = TimeUtils.millis();
         sinceChange = 0;
         frameRate = Gdx.graphics.getFramesPerSecond();
-        fps = new BitmapFont();
-        fps.setColor(Color.WHITE);
-        fps.getData().setScale(0.5f);
+        fps = generator.generateFont(parameter);
 
         // Vida
         vidaPantalla = new BitmapFont();
@@ -91,10 +94,11 @@ public class GameScreen implements Screen {
         // create renderer with default values
         //b2dr = new Box2DDebugRenderer();
 
+
+        // Colisiones suelo
         BodyDef bdef = new BodyDef();
         FixtureDef fdef = new FixtureDef();
         Body body;
-
 
         for (MapObject object : map.getLayers().get(3).getObjects().getByType(RectangleMapObject.class)) {
 
@@ -111,20 +115,27 @@ public class GameScreen implements Screen {
             fdef.shape = shape;
             fdef.friction = 0.5f;
 
-
             body.createFixture(fdef);
 
             shape.dispose();
         }
 
+        Vector2 pos = getPrincipio();
+
         coins = new Array<>();
-        personaje = new Personaje(new Vector2(40,90), VIDA_PERSONAJE, world);
+        personaje = new Personaje(new Vector2(pos.x,pos.y), VIDA_PERSONAJE, world);
         ovnis = new Array<>();
         enemigosTerrestres = new Array<>();
         topeEnemigos = new Array<>();
+    }
 
-        generarCoins();
-        generarEnemigosTerrestres();
+    private Vector2 getPrincipio(){
+        // Obtiene todos los objetos de la capa 'colision'
+        MapLayer collisionsLayer = map.getLayers().get("principio");
+
+        RectangleMapObject rectangleObject = (RectangleMapObject) collisionsLayer.getObjects().get(0);;
+
+        return new Vector2(rectangleObject.getRectangle().x, rectangleObject.getRectangle().y);
     }
 
 
@@ -134,9 +145,12 @@ public class GameScreen implements Screen {
         // CURSOR
         Gdx.graphics.setCursor(Gdx.graphics.newCursor(cursorPixmap, 0, 0));
 
-        getTopeEnemigos();
-
         tiempo = TimeUtils.millis();
+
+
+        getTopeEnemigos();
+        generarCoins();
+        generarEnemigosTerrestres();
     }
 
 
@@ -172,7 +186,7 @@ public class GameScreen implements Screen {
         fps.draw(batch, (int)frameRate + " FPS", camera.position.x-230, camera.position.y + 110);
         vidaPantalla.draw(batch, "Vida x "+personaje.getVidas() , camera.position.x-230, camera.position.y + 100);
         coinsPantalla.draw(batch, "Coins x "+personaje.coins, camera.position.x -230, camera.position.y + 80);
-        //vidaPantalla.draw(batch, "TIEMPO x "+(TimeUtils.millis()-tiempo)/1000 , camera.position.x-230, camera.position.y+100);
+        //vidaPantalla.draw(batch, "TIEMPO x "+(TimeUtils.millis()-tiempo)/1000 , camera.position.x-230, camera.position.y+90);
 
 
         personaje.pintar(batch);
@@ -185,7 +199,7 @@ public class GameScreen implements Screen {
             coin.pintar(batch);
 
 
-        for(EnemigoTerrestre terrestre : enemigosTerrestres)
+        for(EnemigoTerrestre1 terrestre : enemigosTerrestres)
             terrestre.pintar(batch);
 
 
@@ -198,26 +212,27 @@ public class GameScreen implements Screen {
             camera.position.set(TILES_IN_CAMERA_WIDTH * TILE_WIDTH / 2, TILES_IN_CAMERA_HEIGHT * TILE_WIDTH / 2 , 0);
         else
             camera.position.set(personaje.b2body.getPosition().x, TILES_IN_CAMERA_HEIGHT * TILE_WIDTH / 2 , 0);
-/*
+
+        /*
         camera.update();
         renderer.setView(camera);
-*/
+        */
 
-// These values likely need to be scaled according to your world coordinates.
-// The left boundary of the map (x)
+        // These values likely need to be scaled according to your world coordinates.
+        // The left boundary of the map (x)
         int mapLeft = 0;
-// The right boundary of the map (x + width)
+        // The right boundary of the map (x + width)
         float mapRight = TILES_IN_CAMERA_WIDTH * TILE_WIDTH * 5.33f ;
-// The camera dimensions, halved
+        // The camera dimensions, halved
         float cameraHalfWidth = camera.viewportWidth * .5f;
 
-// Move camera after player as normal
+        // Move camera after player as normal
 
         float cameraLeft = camera.position.x - cameraHalfWidth;
         float cameraRight = camera.position.x + cameraHalfWidth;
 
 
-// Horizontal axis
+        // Horizontal axis
         if(mapRight < camera.viewportWidth)
         {
             camera.position.x = mapRight / 2;
@@ -233,7 +248,7 @@ public class GameScreen implements Screen {
         camera.update();
         renderer.setView(camera);
 
-/*
+        /*
         camera.position.x = personaje.b2body.getPosition().x;
 
         //update our gamecam with correct coordinates after changes
@@ -241,7 +256,7 @@ public class GameScreen implements Screen {
         //tell our renderer to draw only what our camera can see in our game world.
         renderer.setView(camera);
         renderer.render();
-*/
+        */
     }
 
     private void actualizar(float dt) {
@@ -262,7 +277,6 @@ public class GameScreen implements Screen {
     }
 
     private void generarEnemigosVoladores(){
-
         /*
             Timer.schedule(new Timer.Task() {
                 public void run(){
@@ -283,10 +297,9 @@ public class GameScreen implements Screen {
 
             Rectangle rect = rectangleObject.getRectangle();
 
-            enemigosTerrestres.add(new EnemigoTerrestre(new Vector2(rect.x, rect.y)));
+            enemigosTerrestres.add(new EnemigoTerrestre1(new Vector2(rect.x, rect.y)));
         }
     }
-
 
     private void moverBalas(){
         for(BalaPj bala : personaje.balas)
@@ -301,8 +314,8 @@ public class GameScreen implements Screen {
         for(EnemigoVolador enemigoVolador : ovnis)
             enemigoVolador.mover(personaje.b2body.getPosition());
 
-        for(EnemigoTerrestre ene : enemigosTerrestres)
-            ene.mover(topeEnemigos);
+        for(EnemigoTerrestre1 ene : enemigosTerrestres)
+            ene.mover(topeEnemigos,personaje.b2body.getPosition());
     }
 
     private void generarCoins(){
@@ -352,7 +365,7 @@ public class GameScreen implements Screen {
                 if (bala.rect.overlaps(enemigoVolador.rect)){
                     personaje.balas.removeValue(bala, true);
                     enemigoVolador.quitarVida();
-                    hitSound.play(0.7f);
+                    //hitSound1.play(0.7f);
                     if(enemigoVolador.estaMuerto()) {
                         ovnis.removeValue(enemigoVolador, true);
                         generarEnemigosVoladores();
@@ -361,7 +374,7 @@ public class GameScreen implements Screen {
 
         for(Coin coin: coins)
             if(personaje.rect.overlaps(coin.rect)){
-                Coin.soundCoin.play(0.7f);
+                Coin.playCoinSound();
                 coins.removeValue(coin, true);
                 personaje.coins++;
             }
@@ -373,21 +386,28 @@ public class GameScreen implements Screen {
             }
 
 
-        for(EnemigoTerrestre enemigoTerrestre: enemigosTerrestres) {
-            if (enemigoTerrestre.rect.overlaps(personaje.rect))
+        for(EnemigoTerrestre1 enemigoTerrestre1 : enemigosTerrestres) {
+            if (enemigoTerrestre1.rect.overlaps(personaje.rect))
                 personaje.quitarVida();
 
             for (BalaPj balaPj : personaje.balas)
-                if (enemigoTerrestre.rect.overlaps(balaPj.rect)) {
-                    hitSound.play(0.7f);
+                if (enemigoTerrestre1.rect.overlaps(balaPj.rect)) {
+                    //hitSound.play(0.7f);
                     personaje.balas.removeValue(balaPj, true);
-                    enemigoTerrestre.quitarVida();
-                    if (enemigoTerrestre.estaMuerto()) {
-                        enemigosTerrestres.removeValue(enemigoTerrestre, true);
-                        coins.add(new Coin(new Vector2(enemigoTerrestre.rect.x, enemigoTerrestre.rect.y)));
+                    enemigoTerrestre1.quitarVida();
+                    if (enemigoTerrestre1.estaMuerto()) {
+                        enemigosTerrestres.removeValue(enemigoTerrestre1, true);
+                        coins.add(new Coin(new Vector2(enemigoTerrestre1.rect.x, enemigoTerrestre1.rect.y)));
                     }
                 }
         }
+
+
+        MapLayer finLayer = map.getLayers().get("fin");
+        for (MapObject object : finLayer.getObjects())
+            if (((RectangleMapObject) object).getRectangle().overlaps(personaje.rect))
+                ((Game) Gdx.app.getApplicationListener()).setScreen( new GameScreen2(personaje));
+
     }
 
     private void comprobarTeclado(float dt) {
@@ -412,7 +432,7 @@ public class GameScreen implements Screen {
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.R)){
-            ((Game) Gdx.app.getApplicationListener()).setScreen(new GameScreen());
+            ((Game) Gdx.app.getApplicationListener()).setScreen(new GameScreen1());
         }
     }
 
@@ -460,6 +480,5 @@ public class GameScreen implements Screen {
         personaje.texturaBala.dispose();
 
         fps.dispose();
-
     }
 }

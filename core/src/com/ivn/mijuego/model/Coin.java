@@ -9,6 +9,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
+import static com.ivn.mijuego.screens.ConfigurationScreen.prefs;
+
 public class Coin {
 
     public Vector2 posicion;
@@ -26,5 +28,10 @@ public class Coin {
     public void pintar(Batch batch){
         stateTime += Gdx.graphics.getDeltaTime();
         batch.draw((TextureRegion) (animationCoin.getKeyFrame(stateTime, true)),posicion.x, posicion.y);
+    }
+
+    public static void playCoinSound(){
+        if(prefs.getBoolean("sound"))
+            soundCoin.play(0.6f);
     }
 }

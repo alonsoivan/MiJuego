@@ -11,6 +11,8 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Timer;
 
+
+import static com.ivn.mijuego.screens.ConfigurationScreen.prefs;
 import static com.ivn.mijuego.util.Constantes.PERSONAJE_SPEED;
 
 
@@ -44,11 +46,15 @@ public class Personaje extends Sprite {
     private Animation idleLeftAnimation;
     private Animation runRightAnimation;
     private Animation runLeftAnimation;
+    private Animation inmuneAnimation;
+    private Animation inmuneLeftAnimation;
+
     float stateTime;
 
     // Sonidos
     public static Sound shotSound = Gdx.audio.newSound(Gdx.files.internal("personaje/disparo.wav"));
-    public static Sound hitSound = Gdx.audio.newSound(Gdx.files.internal("personaje/hit2.mp3"));
+    public static Sound hitSound1 = Gdx.audio.newSound(Gdx.files.internal("personaje/hit2.mp3"));
+    public static Sound hitSound2 = Gdx.audio.newSound(Gdx.files.internal("personaje/hit3.mp3"));
 
 
     public Personaje(Vector2 posicion, int vidas, World world) {
@@ -63,8 +69,6 @@ public class Personaje extends Sprite {
         this.rect = new Rectangle(posicion.x,posicion.y, textura.getRegionWidth(), textura.getRegionHeight());
         this.world = world;
 
-        this.texturaBala = new Texture("balas/bala.png");
-
         definePersonaje();
 
         estado = Estado.RUN_RIGHT;
@@ -76,12 +80,15 @@ public class Personaje extends Sprite {
         idleLeftAnimation = new Animation(0.15f, new TextureAtlas(Gdx.files.internal("personaje/idleLeft.atlas")).findRegions("idle"));
         runRightAnimation = new Animation(0.15f, new TextureAtlas(Gdx.files.internal("personaje/runRight.atlas")).findRegions("run"));
         runLeftAnimation = new Animation(0.15f, new TextureAtlas(Gdx.files.internal("personaje/runLeft.atlas")).findRegions("run"));
-        //runLeftAnimation = new Animation(0.15f, new TextureAtlas(Gdx.files.internal("personaje/golpeado.atlas")).findRegions("golpeado"));
+
+        inmuneAnimation = new Animation(0.20f, new TextureAtlas(Gdx.files.internal("personaje/inmune.atlas")).findRegions("inmune"));
+        inmuneLeftAnimation = new Animation(0.20f, new TextureAtlas(Gdx.files.internal("personaje/inmuneLeft.atlas")).findRegions("inmune"));
+
     }
 
     public void definePersonaje(){
         BodyDef bdef = new BodyDef();
-        bdef.position.set(90 , 50 );
+        bdef.position.set(posicion.x , posicion.y );
         bdef.type = BodyDef.BodyType.DynamicBody;
         b2body = world.createBody(bdef);
 
@@ -93,7 +100,6 @@ public class Personaje extends Sprite {
         fdef.shape = shape;
 
         b2body.createFixture(fdef).setUserData(this);
-
     }
 
     public void pintar(Batch batch){
@@ -122,8 +128,14 @@ public class Personaje extends Sprite {
             }
         }
 
+        if(isInmune)
+            if(estado == Estado.RUN_LEFT || estado == Estado.IDLE_LEFT)
+                batch.draw((TextureRegion) (inmuneLeftAnimation.getKeyFrame(stateTime, true)), b2body.getPosition().x -8, b2body.getPosition().y -14);
+            else
+                batch.draw((TextureRegion) (inmuneAnimation.getKeyFrame(stateTime, true)), b2body.getPosition().x -8, b2body.getPosition().y -14);
+        else
+            batch.draw(currentFrame, b2body.getPosition().x -8, b2body.getPosition().y -14);
 
-        batch.draw(currentFrame, b2body.getPosition().x -8, b2body.getPosition().y -14);
         rect.setPosition(new Vector2 (b2body.getPosition().x -8, b2body.getPosition().y -15));
     }
 
@@ -188,13 +200,16 @@ public class Personaje extends Sprite {
 
     public void disparar(Vector3 target){
         shotSound.play(0.7f);
-        balas.add(new BalaPj(new Vector2(b2body.getPosition().x, b2body.getPosition().y),texturaBala, target));
+        balas.add(new BalaPj(new Vector2(b2body.getPosition().x, b2body.getPosition().y), target));
     }
 
     public void quitarVida(){
         if(!isInmune) {
             vidas--;
-            hitSound.play(0.7f);
+
+            if(prefs.getBoolean("sound"))
+                hitSound2.play(0.7f);
+
             empujar();
             if(estaMuerto())
                 System.exit(0);
@@ -218,5 +233,22 @@ public class Personaje extends Sprite {
                 isInmune = false;
             }
         }, 3);
+    }
+
+
+    public int getVelocidad() {
+        return velocidad;
+    }
+
+    public void setVelocidad(int velocidad) {
+        this.velocidad = velocidad;
+    }
+
+    public int getCoins() {
+        return coins;
+    }
+
+    public void setCoins(int coins) {
+        this.coins = coins;
     }
 }

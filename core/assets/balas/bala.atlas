@@ -1,0 +1,76 @@
+
+bala.png
+size: 128,32
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+bala
+  rotate: false
+  xy: 2, 2
+  size: 9, 24
+  orig: 9, 24
+  offset: 0, 0
+  index: -1
+bala
+  rotate: false
+  xy: 13, 2
+  size: 9, 24
+  orig: 9, 24
+  offset: 0, 0
+  index: -1
+bala
+  rotate: false
+  xy: 24, 2
+  size: 9, 24
+  orig: 9, 24
+  offset: 0, 0
+  index: -1
+bala
+  rotate: false
+  xy: 35, 2
+  size: 9, 24
+  orig: 9, 24
+  offset: 0, 0
+  index: -1
+bala
+  rotate: false
+  xy: 46, 2
+  size: 9, 24
+  orig: 9, 24
+  offset: 0, 0
+  index: -1
+bala
+  rotate: false
+  xy: 57, 2
+  size: 9, 24
+  orig: 9, 24
+  offset: 0, 0
+  index: -1
+bala
+  rotate: false
+  xy: 68, 2
+  size: 9, 24
+  orig: 9, 24
+  offset: 0, 0
+  index: -1
+bala
+  rotate: false
+  xy: 79, 2
+  size: 9, 24
+  orig: 9, 24
+  offset: 0, 0
+  index: -1
+bala
+  rotate: false
+  xy: 90, 2
+  size: 9, 24
+  orig: 9, 24
+  offset: 0, 0
+  index: -1
+bala
+  rotate: false
+  xy: 101, 2
+  size: 9, 24
+  orig: 9, 24
+  offset: 0, 0
+  index: -1

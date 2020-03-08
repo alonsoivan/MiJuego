@@ -1,20 +1,21 @@
 package com.ivn.mijuego.model;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 
-import javax.swing.*;
+import static com.ivn.mijuego.screens.ConfigurationScreen.prefs;
+import static com.ivn.mijuego.util.Constantes.*;
 
-import static com.ivn.mijuego.util.Constantes.ENEMIGO_SPEED;
-import static com.ivn.mijuego.util.Constantes.ENEMIGO_VIDA;
-
-public class EnemigoTerrestre {
+public class EnemigoTerrestre2 {
 
     public Vector2 position;
     public float velocidad;
@@ -23,15 +24,24 @@ public class EnemigoTerrestre {
     public boolean dir = false;
     private int vida;
 
-    public static Animation animationEnemigoRight = new Animation(0.15f, new TextureAtlas(Gdx.files.internal("enemigo/enemigoRight.atlas")).findRegions("enemigo"));
-    public static Animation animationEnemigoLeft = new Animation(0.15f, new TextureAtlas(Gdx.files.internal("enemigo/enemigoLeft.atlas")).findRegions("enemigo"));
+    public Array<BalaEnemigoT2> balas;
 
-    public EnemigoTerrestre(Vector2 position) {
+
+    public static Sound shotSound = Gdx.audio.newSound(Gdx.files.internal("enemigoT2/disparar.mp3"));
+    public static Sound damagedSound = Gdx.audio.newSound(Gdx.files.internal("enemigoT2/damaged.mp3"));
+
+
+    public static Animation animationEnemigoRight = new Animation(0.15f, new TextureAtlas(Gdx.files.internal("enemigoT2/runRight.atlas")).findRegions("run"));
+    public static Animation animationEnemigoLeft = new Animation(0.15f, new TextureAtlas(Gdx.files.internal("enemigoT2/runLeft.atlas")).findRegions("run"));
+
+    public EnemigoTerrestre2(Vector2 position) {
+        balas = new Array<>();
+
+
         this.velocidad = ENEMIGO_SPEED;
-        this.vida = ENEMIGO_VIDA;
+        this.vida = ENEMIGO2_VIDA;
         this.position = position;
-        this.rect = new Rectangle(position.x, position.y, 16,16);
-        this.vida = 3;
+        this.rect = new Rectangle(position.x, position.y, 32,34);
     }
 
     public void pintar(Batch batch){
@@ -41,6 +51,10 @@ public class EnemigoTerrestre {
             batch.draw((TextureRegion) (animationEnemigoRight.getKeyFrame(stateTime, true)),position.x, position.y);
         else
             batch.draw((TextureRegion) (animationEnemigoLeft.getKeyFrame(stateTime, true)),position.x, position.y);
+
+
+        for(BalaEnemigoT2 bala : balas)
+            bala.pintar(batch);
     }
 
     public void mover(Array<Rectangle> topeEnemigos){
@@ -64,5 +78,16 @@ public class EnemigoTerrestre {
 
     public boolean estaMuerto(){
         return vida > 0 ? false : true;
+    }
+
+    public void disparar(Vector3 target){
+        if(prefs.getBoolean("sound"))
+            shotSound.play(0.5f);
+
+        int balasADisparar = MathUtils.random(5,8)+1;
+
+        for(int i = 0; i < balasADisparar ; i++)
+            balas.add(new BalaEnemigoT2(new Vector2(position.x + rect.getWidth()/2, position.y + 12),dir));
+
     }
 }

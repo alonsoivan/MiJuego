@@ -60,7 +60,7 @@ public class EnemigoVolador {
     }
 
     public void disparar(){
-        EnemigoVolador.balas.add(new BalaOvni(new Vector2(position.x,position.y),new Texture("balas/bala.png")));
+        EnemigoVolador.balas.add(new BalaOvni(new Vector2(position.x,position.y)));
     }
 
     public void quitarVida(){
