@@ -4,10 +4,11 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.g2d.*;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.GL30;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.EllipseMapObject;
@@ -33,20 +34,12 @@ public class GameScreen1 implements Screen {
     private Array<EnemigoTerrestre1> enemigosTerrestres;
     private Array<Rectangle> topeEnemigos;
 
+    // HUD
+    private HUD hud = new HUD();
+    private SpriteBatch batch2 = new SpriteBatch();
+
     // CURSOR
     private Pixmap cursorPixmap = new Pixmap(Gdx.files.internal("cursor/cursor1.png"));
-
-    // FPS
-    long lastTimeCounted;
-    private float sinceChange;
-    private float frameRate;
-
-    FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/LemonMilk.otf"));
-    FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-
-    private BitmapFont fps;
-    private BitmapFont vidaPantalla;
-    private BitmapFont coinsPantalla;
 
     // TiledMap
     private Batch batch;
@@ -58,27 +51,8 @@ public class GameScreen1 implements Screen {
     private World world;
     //private Box2DDebugRenderer b2dr;
 
+
     public GameScreen1(){
-
-        parameter.size = 16;
-        parameter.color = Color.RED;
-
-        // FPS
-        lastTimeCounted = TimeUtils.millis();
-        sinceChange = 0;
-        frameRate = Gdx.graphics.getFramesPerSecond();
-        fps = generator.generateFont(parameter);
-
-        // Vida
-        vidaPantalla = new BitmapFont();
-        vidaPantalla.setColor(Color.WHITE);
-        vidaPantalla.getData().setScale(0.5f);
-
-        // COins
-        coinsPantalla= new BitmapFont();
-        coinsPantalla.setColor(Color.WHITE);
-        coinsPantalla.getData().setScale(0.5f);
-
 
         world = new World(new Vector2(0,-10f),true);
 
@@ -174,26 +148,31 @@ public class GameScreen1 implements Screen {
         handleCamera();
 
         Gdx.gl.glClearColor(0, 0, 1, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        //Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
-
+        //Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
 
         renderer.render();
         //b2dr.render(world,camera.combined);
 
+
+        // NPI
+        //batch.setProjectionMatrix(camera.combined);
+        //batch2.setProjectionMatrix(camera.combined);
+
+        batch2.begin();
+
+        hud.pintar(batch2,personaje.getVidas(),personaje.getCoins());
+
+        batch2.end();
+
+
+
         batch.begin();
-
-        fps.draw(batch, (int)frameRate + " FPS", camera.position.x-230, camera.position.y + 110);
-        vidaPantalla.draw(batch, "Vida x "+personaje.getVidas() , camera.position.x-230, camera.position.y + 100);
-        coinsPantalla.draw(batch, "Coins x "+personaje.coins, camera.position.x -230, camera.position.y + 80);
-        //vidaPantalla.draw(batch, "TIEMPO x "+(TimeUtils.millis()-tiempo)/1000 , camera.position.x-230, camera.position.y+90);
-
 
         personaje.pintar(batch);
 
         for(EnemigoVolador enemigoVolador : ovnis)
             enemigoVolador.pintar(batch);
-
 
         for(Coin coin : coins)
             coin.pintar(batch);
@@ -201,7 +180,6 @@ public class GameScreen1 implements Screen {
 
         for(EnemigoTerrestre1 terrestre : enemigosTerrestres)
             terrestre.pintar(batch);
-
 
         batch.end();
     }
@@ -270,10 +248,7 @@ public class GameScreen1 implements Screen {
 
         moverBalas();
 
-        update();
-
         world.step(1/60f,6,2);
-
     }
 
     private void generarEnemigosVoladores(){
@@ -301,13 +276,14 @@ public class GameScreen1 implements Screen {
         }
     }
 
+
     private void moverBalas(){
         for(BalaPj bala : personaje.balas)
             bala.mover();
 
-        for(EnemigoVolador enemigoVolador : ovnis)
-            for(BalaOvni balaOvni : enemigoVolador.balas)
-                balaOvni.mover();
+        for(BalaOvni balaOvni : EnemigoVolador.balas)
+            balaOvni.mover();
+
     }
 
     private void moverEnemigos(){
@@ -335,6 +311,11 @@ public class GameScreen1 implements Screen {
     }
 
     private void comprobarColisiones(){
+
+        if(personaje.b2body.getPosition().y < 20) {
+            personaje.quitarVida();
+            personaje.b2body.setTransform(getPrincipio(), personaje.b2body.getAngle());
+        }
 
         // Obtiene todos los objetos de la capa 'colision'
         MapLayer collisionsLayer = map.getLayers().get("colisiones");
@@ -365,7 +346,6 @@ public class GameScreen1 implements Screen {
                 if (bala.rect.overlaps(enemigoVolador.rect)){
                     personaje.balas.removeValue(bala, true);
                     enemigoVolador.quitarVida();
-                    //hitSound1.play(0.7f);
                     if(enemigoVolador.estaMuerto()) {
                         ovnis.removeValue(enemigoVolador, true);
                         generarEnemigosVoladores();
@@ -392,7 +372,6 @@ public class GameScreen1 implements Screen {
 
             for (BalaPj balaPj : personaje.balas)
                 if (enemigoTerrestre1.rect.overlaps(balaPj.rect)) {
-                    //hitSound.play(0.7f);
                     personaje.balas.removeValue(balaPj, true);
                     enemigoTerrestre1.quitarVida();
                     if (enemigoTerrestre1.estaMuerto()) {
@@ -427,6 +406,9 @@ public class GameScreen1 implements Screen {
             //personaje.disparar(getMousePosInGameWorld());
             generarEnemigosVoladores();
 
+        if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE))
+            ((Game) Gdx.app.getApplicationListener()).setScreen(new MainScreen());
+
         if(Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)){
             personaje.disparar(getMousePosInGameWorld());
         }
@@ -436,25 +418,14 @@ public class GameScreen1 implements Screen {
         }
     }
 
-    public void update() {
-
-        // FPS
-        long delta = TimeUtils.timeSinceMillis(lastTimeCounted);
-        lastTimeCounted = TimeUtils.millis();
-
-        sinceChange += delta;
-        if(sinceChange >= 1000) {
-            sinceChange = 0;
-            frameRate = Gdx.graphics.getFramesPerSecond();
-        }
-    }
-
     Vector3 getMousePosInGameWorld() {
         return camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
     }
 
     @Override
     public void resize(int width, int height) {
+        camera.update();
+        batch2.flush();
     }
 
     @Override
@@ -478,7 +449,5 @@ public class GameScreen1 implements Screen {
         renderer.dispose();
 
         personaje.texturaBala.dispose();
-
-        fps.dispose();
     }
 }

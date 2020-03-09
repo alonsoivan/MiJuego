@@ -1,5 +1,6 @@
 package com.ivn.mijuego.model;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
@@ -10,6 +11,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Timer;
+import com.ivn.mijuego.screens.MainScreen;
 
 
 import static com.ivn.mijuego.screens.ConfigurationScreen.prefs;
@@ -53,8 +55,9 @@ public class Personaje extends Sprite {
 
     // Sonidos
     public static Sound shotSound = Gdx.audio.newSound(Gdx.files.internal("personaje/disparo.wav"));
-    public static Sound hitSound1 = Gdx.audio.newSound(Gdx.files.internal("personaje/hit2.mp3"));
+    public static Sound damagedSound = Gdx.audio.newSound(Gdx.files.internal("personaje/hit2.mp3"));
     public static Sound hitSound2 = Gdx.audio.newSound(Gdx.files.internal("personaje/hit3.mp3"));
+    public static Sound jumpSound = Gdx.audio.newSound(Gdx.files.internal("personaje/jump.mp3"));
 
 
     public Personaje(Vector2 posicion, int vidas, World world) {
@@ -141,6 +144,9 @@ public class Personaje extends Sprite {
 
     public void saltar(float dt){
         if ( !isJumping ) {
+            if(prefs.getBoolean("sound"))
+                jumpSound.play(0.25f);
+
             //b2body.applyLinearImpulse(new Vector2(0, 4*100f), b2body.getWorldCenter(), true);
             b2body.setLinearVelocity(new Vector2(b2body.getLinearVelocity().x, 20600).scl(velocidad));
             isJumping = true;
@@ -199,8 +205,11 @@ public class Personaje extends Sprite {
     }
 
     public void disparar(Vector3 target){
-        shotSound.play(0.7f);
+        if(prefs.getBoolean("sound"))
+            shotSound.play(0.7f);
+
         balas.add(new BalaPj(new Vector2(b2body.getPosition().x, b2body.getPosition().y), target));
+
     }
 
     public void quitarVida(){
@@ -208,11 +217,13 @@ public class Personaje extends Sprite {
             vidas--;
 
             if(prefs.getBoolean("sound"))
-                hitSound2.play(0.7f);
+                damagedSound.play(0.5f);
 
             empujar();
+
             if(estaMuerto())
-                System.exit(0);
+                ((Game) Gdx.app.getApplicationListener()).setScreen( new MainScreen());
+
             getInmunidad();
         }
     }

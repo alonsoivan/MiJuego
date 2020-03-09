@@ -11,9 +11,13 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 
+import static com.ivn.mijuego.model.Personaje.hitSound2;
+import static com.ivn.mijuego.screens.ConfigurationScreen.prefs;
+import static com.ivn.mijuego.util.Constantes.*;
+
 public class EnemigoVolador {
     public Vector2 position;
-    public int velocidad;
+    public float velocidad;
     public Rectangle rect;
     public int vida;
 
@@ -27,7 +31,8 @@ public class EnemigoVolador {
     public EnemigoVolador(Vector2 position){
         this.position = position;
         this.rect = new Rectangle(position.x, position.y, 16, 16);
-        this.vida = 2;
+        this.vida = ENEMIGO_VIDA;
+        this.velocidad = ENEMIGO_VOLADOR_VELOCIDAD;
     }
 
     public void pintar(Batch batch){
@@ -49,7 +54,7 @@ public class EnemigoVolador {
 
 
         if (dir!=null) {
-            position.add(dir);
+            position.add(dir.scl(velocidad));
             rect.setPosition(position);
         }else
             if (TimeUtils.millis() - tiempoJuego > 1000) {
@@ -64,6 +69,10 @@ public class EnemigoVolador {
     }
 
     public void quitarVida(){
+
+        if(prefs.getBoolean("sound"))
+            hitSound2.play(0.7f);
+
         vida--;
     }
 

@@ -4,13 +4,13 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.EllipseMapObject;
@@ -28,7 +28,6 @@ import com.badlogic.gdx.utils.Timer;
 import com.ivn.mijuego.model.*;
 
 import static com.ivn.mijuego.util.Constantes.*;
-import static com.ivn.mijuego.util.Constantes.TILE_WIDTH;
 
 public class GameScreen2 implements Screen {
 
@@ -38,8 +37,11 @@ public class GameScreen2 implements Screen {
     private Array<EnemigoTerrestre2> enemigosTerrestres;
     private Array<Rectangle> topeEnemigos;
 
-    // SOUNDS
-    public static Sound hitSound = Gdx.audio.newSound(Gdx.files.internal("personaje/hit3.mp3"));
+
+    // HUD
+    private HUD hud = new HUD();
+    private SpriteBatch batch2 = new SpriteBatch();
+
 
     // CURSOR
     private Pixmap cursorPixmap = new Pixmap(Gdx.files.internal("cursor/cursor1.png"));
@@ -264,6 +266,11 @@ public class GameScreen2 implements Screen {
 
     private void comprobarColisiones(){
 
+        if(personaje.b2body.getPosition().y < 20) {
+            personaje.quitarVida();
+            personaje.b2body.setTransform(getPrincipio(), personaje.b2body.getAngle());
+        }
+
         // Obtiene todos los objetos de la capa 'colision'
         MapLayer collisionsLayer = map.getLayers().get("colisiones");
 
@@ -301,7 +308,6 @@ public class GameScreen2 implements Screen {
                 if (bala.rect.overlaps(enemigoVolador.rect)){
                     personaje.balas.removeValue(bala, true);
                     enemigoVolador.quitarVida();
-                    hitSound.play(0.7f);
                     if(enemigoVolador.estaMuerto()) {
                         ovnis.removeValue(enemigoVolador, true);
                         //generarEnemigosVoladores();
@@ -310,7 +316,7 @@ public class GameScreen2 implements Screen {
 
         for(Coin coin: coins)
             if(personaje.rect.overlaps(coin.rect)){
-                Coin.soundCoin.play(0.7f);
+                Coin.playCoinSound();
                 coins.removeValue(coin, true);
                 personaje.coins++;
             }
@@ -332,7 +338,6 @@ public class GameScreen2 implements Screen {
 
             for (BalaPj balaPj : personaje.balas)
                 if (enemigoTerrestre.rect.overlaps(balaPj.rect)) {
-                    EnemigoTerrestre2.damagedSound.play(0.7f);
                     personaje.balas.removeValue(balaPj, true);
                     enemigoTerrestre.quitarVida();
                     if (enemigoTerrestre.estaMuerto()) {
@@ -355,6 +360,9 @@ public class GameScreen2 implements Screen {
             personaje.saltar(dt);
 
         personaje.b2body.applyForce(new Vector2( personaje.b2body.getLinearVelocity().x,-600),personaje.b2body.getWorldCenter(),false);
+
+        if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE))
+            ((Game) Gdx.app.getApplicationListener()).setScreen(new MainScreen());
 
         if (Gdx.input.isKeyPressed(Input.Keys.D))
             personaje.moverDerecha();
@@ -457,31 +465,29 @@ public class GameScreen2 implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         //Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
 
-
         renderer.render();
         //b2dr.render(world,camera.combined);
 
+
+        batch2.begin();
+
+        hud.pintar(batch2,personaje.getVidas(),personaje.getCoins());
+
+        batch2.end();
+
+
         batch.begin();
-
-        fps.draw(batch, (int)frameRate + " FPS", camera.position.x-230, camera.position.y + 110);
-        vidaPantalla.draw(batch, "Vida x "+personaje.getVidas() , camera.position.x-230, camera.position.y + 100);
-        coinsPantalla.draw(batch, "Coins x "+personaje.coins, camera.position.x -230, camera.position.y + 80);
-        //vidaPantalla.draw(batch, "TIEMPO x "+(TimeUtils.millis()-tiempo)/1000 , camera.position.x-230, camera.position.y+100);
-
 
         personaje.pintar(batch);
 
         for(EnemigoVolador enemigoVolador : ovnis)
             enemigoVolador.pintar(batch);
 
-
         for(Coin coin : coins)
             coin.pintar(batch);
 
-
         for(EnemigoTerrestre2 terrestre : enemigosTerrestres)
             terrestre.pintar(batch);
-
 
         batch.end();
     }

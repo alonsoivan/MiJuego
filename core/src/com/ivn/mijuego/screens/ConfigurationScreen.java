@@ -15,7 +15,7 @@ import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisSelectBox;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 
-import static com.ivn.mijuego.util.Constantes.APP_NAME;
+import static com.ivn.mijuego.util.Constantes.*;
 
 public class ConfigurationScreen implements Screen {
 
@@ -26,6 +26,7 @@ public class ConfigurationScreen implements Screen {
     VisLabel lbTitulo;
     VisCheckBox ccbSonido;
     VisCheckBox ccbFps;
+    VisSelectBox<String> cbbDificultad;
 
     @Override
     public void show() {
@@ -35,11 +36,11 @@ public class ConfigurationScreen implements Screen {
         stage = new Stage();
 
         lbTitulo = new VisLabel("CONFIGURACIÓN", Color.RED);
-        lbTitulo.setFontScale(5);
+        lbTitulo.setFontScale(2);
         lbTitulo.setBounds(100,700,20,20);
 
         ccbSonido = new VisCheckBox("SONIDO");
-        ccbSonido.setBounds(100,600,200,50);
+        ccbSonido.setBounds(100,600,100,50);
 
         if(prefs.getBoolean("sound"))
             ccbSonido.setChecked(true);
@@ -56,7 +57,7 @@ public class ConfigurationScreen implements Screen {
 
 
         ccbFps = new VisCheckBox("MOSTRAR FPS");
-        ccbFps.setBounds(100,500,200,50);
+        ccbFps.setBounds(100,500,150,50);
         if(prefs.getBoolean("fps"))
             ccbFps.setChecked(true);
 
@@ -70,21 +71,49 @@ public class ConfigurationScreen implements Screen {
             }
         });
 
+        cbbDificultad = new VisSelectBox<>();
+        cbbDificultad.setBounds(100,400,100,50);
+        cbbDificultad.setItems(new String[]{"FACIL","NORMAL","DIFICIL"});
+        cbbDificultad.setSelected(prefs.getString("dificultad"));
+
         VisTextButton btVolver = new VisTextButton("VOLVER");
-        btVolver.setBounds(100,400,200,100);
+        btVolver.setBounds(100,200,200,50);
         btVolver.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+
+                String selection = cbbDificultad.getSelected();
+
+                switch (selection){
+                    case "FACIL":
+                        VIDA_PERSONAJE = 10;
+                        ENEMIGO2_VIDA = 5;
+                        ENEMIGO_VIDA = 2;
+                        break;
+                    case "NORMAL":
+                        VIDA_PERSONAJE = 5;
+                        ENEMIGO2_VIDA = 10;
+                        ENEMIGO_VIDA = 6;
+                        break;
+                    case "DIFICIL":
+                        VIDA_PERSONAJE = 1;
+                        ENEMIGO2_VIDA = 30;
+                        ENEMIGO_VIDA = 18;
+                        break;
+                }
+
+                prefs.putString("dificultad",selection);
+
                 ((Game) Gdx.app.getApplicationListener()).setScreen(new MainScreen());
             }
         });
 
-        VisSelectBox<String> cbb = new VisSelectBox<>();
 
 
-        stage.addActor(lbTitulo);
+        stage.addActor(lbTitulo );
         stage.addActor(ccbSonido);
         stage.addActor(ccbFps);
+        stage.addActor(cbbDificultad);
         stage.addActor(btVolver);
 
 

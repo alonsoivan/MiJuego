@@ -9,6 +9,8 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
+import static com.ivn.mijuego.model.Personaje.hitSound2;
+import static com.ivn.mijuego.screens.ConfigurationScreen.prefs;
 import static com.ivn.mijuego.util.Constantes.ENEMIGO_SPEED;
 import static com.ivn.mijuego.util.Constantes.ENEMIGO_VIDA;
 
@@ -71,6 +73,8 @@ public class EnemigoTerrestre1 {
 
     public void quitarVida(){
         vida--;
+        if(prefs.getBoolean("sound"))
+            hitSound2.play(0.7f);
     }
 
     public boolean estaMuerto(){

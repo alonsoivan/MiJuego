@@ -12,6 +12,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 
+import static com.ivn.mijuego.model.Personaje.hitSound2;
 import static com.ivn.mijuego.screens.ConfigurationScreen.prefs;
 import static com.ivn.mijuego.util.Constantes.*;
 
@@ -74,6 +75,8 @@ public class EnemigoTerrestre2 {
 
     public void quitarVida(){
         vida--;
+        if(prefs.getBoolean("sound"))
+            damagedSound.play(0.7f);
     }
 
     public boolean estaMuerto(){
