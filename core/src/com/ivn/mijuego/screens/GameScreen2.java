@@ -4,12 +4,10 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
@@ -32,10 +30,11 @@ import static com.ivn.mijuego.util.Constantes.*;
 public class GameScreen2 implements Screen {
 
     private Personaje personaje;
-    private Array<EnemigoVolador> ovnis;
+    private Array<EnemigoVolador> enemigosVoladores;
     private Array<Coin> coins;
     private Array<EnemigoTerrestre2> enemigosTerrestres;
     private Array<Rectangle> topeEnemigos;
+    private Array<Vector2> vectoresEnemigosVoladores;
 
 
     // HUD
@@ -45,14 +44,6 @@ public class GameScreen2 implements Screen {
 
     // CURSOR
     private Pixmap cursorPixmap = new Pixmap(Gdx.files.internal("cursor/cursor1.png"));
-
-    // FPS
-    long lastTimeCounted;
-    private float sinceChange;
-    private float frameRate;
-    private BitmapFont fps;
-    private BitmapFont vidaPantalla;
-    private BitmapFont coinsPantalla;
 
     // TiledMap
     private Batch batch;
@@ -65,24 +56,6 @@ public class GameScreen2 implements Screen {
     //private Box2DDebugRenderer b2dr;
 
     public GameScreen2(Personaje personaje){
-
-        // FPS
-        lastTimeCounted = TimeUtils.millis();
-        sinceChange = 0;
-        frameRate = Gdx.graphics.getFramesPerSecond();
-        fps = new BitmapFont();
-        fps.setColor(Color.WHITE);
-        fps.getData().setScale(0.5f);
-
-        // Vida
-        vidaPantalla = new BitmapFont();
-        vidaPantalla.setColor(Color.WHITE);
-        vidaPantalla.getData().setScale(0.5f);
-
-        // Coins
-        coinsPantalla= new BitmapFont();
-        coinsPantalla.setColor(Color.WHITE);
-        coinsPantalla.getData().setScale(0.5f);
 
         world = new World(new Vector2(0,-10f),true);
 
@@ -129,9 +102,10 @@ public class GameScreen2 implements Screen {
         this.personaje = new Personaje(new Vector2(pos.x,pos.y), personaje.getVidas(), world);
         this.personaje.setCoins(personaje.getCoins());
 
-        ovnis = new Array<>();
+        enemigosVoladores = new Array<>();
         enemigosTerrestres = new Array<>();
         topeEnemigos = new Array<>();
+        vectoresEnemigosVoladores = new Array<>();
     }
 
     private Vector2 getPrincipio(){
@@ -155,7 +129,8 @@ public class GameScreen2 implements Screen {
         generarEnemigosTerrestres();
         generarCoins();
 
-
+        getVectoresEnemigosVoladores();
+        generarEnemigosVoladores();
 
 
 
@@ -173,6 +148,23 @@ public class GameScreen2 implements Screen {
                 generarDisparoEnemigosT2();
             }
         }, 0.10f);
+    }
+
+    private void getVectoresEnemigosVoladores(){
+        MapLayer collisionsLayer = map.getLayers().get("enemigosVoladores");
+
+        for (MapObject object : collisionsLayer.getObjects()) {
+            RectangleMapObject rectangleObject = (RectangleMapObject) object;
+
+            Rectangle rect = rectangleObject.getRectangle();
+
+            vectoresEnemigosVoladores.add(new Vector2(rect.x, rect.y));
+        }
+    }
+
+    private void generarEnemigosVoladores(){
+        for(Vector2 pos : vectoresEnemigosVoladores)
+            enemigosVoladores.add(new EnemigoVolador(pos.cpy()));
 
     }
 
@@ -289,7 +281,7 @@ public class GameScreen2 implements Screen {
                     personaje.balas.removeValue(bala, true);
                 }
 
-            for(BalaOvni bala : EnemigoVolador.balas) {
+            for(BalaEnemigoVolador bala : EnemigoVolador.balas) {
                 if (bala.rect.overlaps(rect)) {
                     EnemigoVolador.balas.removeValue(bala, true);
                 }
@@ -303,14 +295,15 @@ public class GameScreen2 implements Screen {
                 }
         }
 
-        for(EnemigoVolador enemigoVolador : ovnis)
+        for(EnemigoVolador enemigoVolador : enemigosVoladores)
             for(BalaPj bala : personaje.balas)
                 if (bala.rect.overlaps(enemigoVolador.rect)){
                     personaje.balas.removeValue(bala, true);
                     enemigoVolador.quitarVida();
                     if(enemigoVolador.estaMuerto()) {
-                        ovnis.removeValue(enemigoVolador, true);
-                        //generarEnemigosVoladores();
+                        enemigosVoladores.removeValue(enemigoVolador, true);
+                        if(enemigosVoladores.size == 0)
+                            generarEnemigosVoladores();
                     }
                 }
 
@@ -321,9 +314,9 @@ public class GameScreen2 implements Screen {
                 personaje.coins++;
             }
 
-        for(BalaOvni  balaOvni :  EnemigoVolador.balas)
-            if(balaOvni.rect.overlaps(new Rectangle(personaje.b2body.getPosition().x -8 ,personaje.b2body.getPosition().y -14,personaje.getTextura().getRegionWidth(),personaje.getTextura().getRegionHeight()))){
-                EnemigoVolador.balas.removeValue(balaOvni, true);
+        for(BalaEnemigoVolador balaEnemigoVolador :  EnemigoVolador.balas)
+            if(balaEnemigoVolador.rect.overlaps(new Rectangle(personaje.b2body.getPosition().x -8 ,personaje.b2body.getPosition().y -14,personaje.getTextura().getRegionWidth(),personaje.getTextura().getRegionHeight()))){
+                EnemigoVolador.balas.removeValue(balaEnemigoVolador, true);
                 personaje.quitarVida();
             }
 
@@ -371,9 +364,7 @@ public class GameScreen2 implements Screen {
             personaje.moverIzquierda();
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE))
-            //personaje.disparar(getMousePosInGameWorld());
-            //generarEnemigosVoladores();
-            System.out.println("SOY TONTO");
+            personaje.disparar(getMousePosInGameWorld());
 
         if(Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)){
             personaje.disparar(getMousePosInGameWorld());
@@ -394,8 +385,8 @@ public class GameScreen2 implements Screen {
     }
 
     private void moverEnemigos(){
-        for(EnemigoVolador enemigoVolador : ovnis)
-            enemigoVolador.mover(personaje.b2body.getPosition());
+        for(EnemigoVolador enemigoVolador : enemigosVoladores)
+            enemigoVolador.mover(personaje.b2body.getPosition(), topeEnemigos);
 
         for(EnemigoTerrestre2 ene : enemigosTerrestres)
             ene.mover(topeEnemigos);
@@ -410,8 +401,6 @@ public class GameScreen2 implements Screen {
         comprobarTeclado(dt);
 
         comprobarColisiones();
-
-        update();
 
         moverBalas();
 
@@ -435,28 +424,13 @@ public class GameScreen2 implements Screen {
         for(BalaPj bala : personaje.balas)
             bala.mover();
 
-        for(EnemigoVolador enemigoVolador : ovnis)
-            for(BalaOvni balaOvni : enemigoVolador.balas)
-                balaOvni.mover();
+        for(BalaEnemigoVolador balaEnemigoVolador : EnemigoVolador.balas)
+            balaEnemigoVolador.mover();
 
         for(EnemigoTerrestre2 ene : enemigosTerrestres)
             for(BalaEnemigoT2 bala : ene.balas)
                 bala.mover();
     }
-
-    public void update() {
-
-        // FPS
-        long delta = TimeUtils.timeSinceMillis(lastTimeCounted);
-        lastTimeCounted = TimeUtils.millis();
-
-        sinceChange += delta;
-        if(sinceChange >= 1000) {
-            sinceChange = 0;
-            frameRate = Gdx.graphics.getFramesPerSecond();
-        }
-    }
-
 
     private void pintar(float dt) {
         handleCamera();
@@ -480,7 +454,7 @@ public class GameScreen2 implements Screen {
 
         personaje.pintar(batch);
 
-        for(EnemigoVolador enemigoVolador : ovnis)
+        for(EnemigoVolador enemigoVolador : enemigosVoladores)
             enemigoVolador.pintar(batch);
 
         for(Coin coin : coins)

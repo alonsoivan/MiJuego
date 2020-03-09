@@ -104,11 +104,11 @@ public class ConfigurationScreen implements Screen {
 
                 prefs.putString("dificultad",selection);
 
+
+                prefs.flush();
                 ((Game) Gdx.app.getApplicationListener()).setScreen(new MainScreen());
             }
         });
-
-
 
         stage.addActor(lbTitulo );
         stage.addActor(ccbSonido);

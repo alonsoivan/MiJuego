@@ -1,15 +1,14 @@
 package com.ivn.mijuego.screens;
 
+
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
@@ -18,6 +17,7 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -29,7 +29,7 @@ import com.ivn.mijuego.model.*;
 
 import static com.ivn.mijuego.util.Constantes.*;
 
-public class GameScreen3 implements Screen {
+public class GameScreen4 implements Screen {
 
     private Personaje personaje;
     private Array<EnemigoVolador> enemigosVoladores;
@@ -38,8 +38,8 @@ public class GameScreen3 implements Screen {
     private Array<EnemigoTerrestre2> enemigosTerrestres2;
     private Array<Rectangle> topeEnemigos;
     private Array<Vector2> vectoresEnemigosVoladores;
-
-
+    private Array<Vector2> vectoresEspadas;
+    private Array<Espada> espadas;
 
     // HUD
     private HUD hud = new HUD();
@@ -47,7 +47,6 @@ public class GameScreen3 implements Screen {
 
     // CURSOR
     private Pixmap cursorPixmap = new Pixmap(Gdx.files.internal("cursor/cursor1.png"));
-
 
     // TiledMap
     private Batch batch;
@@ -59,7 +58,7 @@ public class GameScreen3 implements Screen {
     private World world;
     //private Box2DDebugRenderer b2dr;
 
-    public GameScreen3(Personaje personaje){
+    public GameScreen4(Personaje personaje){
 
         world = new World(new Vector2(0,-10f),true);
 
@@ -68,7 +67,7 @@ public class GameScreen3 implements Screen {
         camera.setToOrtho(false, TILES_IN_CAMERA_WIDTH * TILE_WIDTH, TILES_IN_CAMERA_HEIGHT * TILE_WIDTH);
         camera.update();
 
-        map = new TmxMapLoader().load("levels/nivel3.tmx");
+        map = new TmxMapLoader().load("levels/nivel4.tmx");
         renderer = new OrthogonalTiledMapRenderer(map, 1);
         batch = renderer.getBatch();
 
@@ -110,6 +109,8 @@ public class GameScreen3 implements Screen {
         enemigosTerrestres2 = new Array<>();
         topeEnemigos = new Array<>();
         vectoresEnemigosVoladores = new Array<>();
+        vectoresEspadas = new Array<>();
+        espadas = new Array<>();
     }
 
     long tiempo;
@@ -122,11 +123,13 @@ public class GameScreen3 implements Screen {
 
         getTopeEnemigos();
         generarEnemigosTerrestres1();
-        generarEnemigosTerrestres2();
+        //generarEnemigosTerrestres2();
         generarCoins();
-        getVectoresEnemigosVoladores();
-        generarEnemigosVoladores();
+        //getVectoresEnemigosVoladores();
+        //generarEnemigosVoladores();
+        getVectoresEspadas();
 
+        /*
 
         // DISPSROS ENEMIGOS T2 A REVISAR
         generarDisparoEnemigosT2();
@@ -143,6 +146,15 @@ public class GameScreen3 implements Screen {
             }
         }, 0.10f,4,5);
 
+
+         */
+
+        Timer.schedule(new Timer.Task() {
+            public void run() {
+                generarEspadas();
+            }
+        }, 0.5f , 2);
+
     }
 
     private void getVectoresEnemigosVoladores(){
@@ -157,11 +169,30 @@ public class GameScreen3 implements Screen {
         }
     }
 
+    private void generarEspadas(){
+        for(final Vector2 pos : vectoresEspadas) {
+            Timer.schedule(new Timer.Task() {
+                public void run() {
+                    espadas.add(new Espada(pos.cpy()));
+                }
+            },  MathUtils.random(1.0f,1.5f));
+        }
+    }
+
     private void generarEnemigosVoladores(){
         for(Vector2 pos : vectoresEnemigosVoladores) {
             enemigosVoladores.add(new EnemigoVolador(pos.cpy()));
         }
+    }
 
+    private void getVectoresEspadas(){
+        MapLayer collisionsLayer = map.getLayers().get("espadas");
+
+        for (MapObject object : collisionsLayer.getObjects()) {
+            RectangleMapObject rectangleObject = (RectangleMapObject) object;
+
+            vectoresEspadas.add(new Vector2(rectangleObject.getRectangle().x, rectangleObject.getRectangle().y));
+        }
     }
 
     private Vector2 getPrincipio(){
@@ -237,7 +268,7 @@ public class GameScreen3 implements Screen {
         // The left boundary of the map (x)
         int mapLeft = 0;
         // The right boundary of the map (x + width)
-        float mapRight = TILES_IN_CAMERA_WIDTH * TILE_WIDTH * 3f  ;
+        float mapRight = TILES_IN_CAMERA_WIDTH * TILE_WIDTH * 2.66f  ;
         // The camera dimensions, halved
         float cameraHalfWidth = camera.viewportWidth * .5f;
 
@@ -280,6 +311,18 @@ public class GameScreen3 implements Screen {
         if(personaje.b2body.getPosition().y < 20) {
             personaje.quitarVida();
             personaje.b2body.setTransform(getPrincipio(), personaje.b2body.getAngle());
+        }
+
+        for(Espada espada : espadas) {
+            if (espada.position.y > TILES_IN_CAMERA_HEIGHT * TILE_WIDTH) {
+                espadas.removeValue(espada, true);
+            }
+            if (espada.rect.overlaps(personaje.rect))
+                personaje.quitarVida();
+
+            for(BalaPj balaPj : personaje.balas)
+                if(balaPj.rect.overlaps(espada.rect))
+                    personaje.balas.removeValue(balaPj,true);
         }
 
         // Obtiene todos los objetos de la capa 'colision'
@@ -467,6 +510,10 @@ public class GameScreen3 implements Screen {
         for(EnemigoTerrestre2 ene : enemigosTerrestres2)
             for(BalaEnemigoT2 bala : ene.balas)
                 bala.mover();
+
+        // Mover espadas
+        for(Espada espada: espadas)
+            espada.mover();
     }
 
     private void pintar(float dt) {
@@ -507,6 +554,9 @@ public class GameScreen3 implements Screen {
 
         for(EnemigoTerrestre1 terrestre : enemigosTerrestres1)
             terrestre.pintar(batch);
+
+        for(Espada espada: espadas)
+            espada.pintar(batch);
 
         batch.end();
     }

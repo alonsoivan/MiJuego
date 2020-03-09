@@ -30,6 +30,7 @@ public class HUD {
         parameter.size = 30;
         parameter.color = Color.WHITE;
 
+
         // VIDA
         vidaPantalla = generator.generateFont(parameter);
         vidaPantalla.setUseIntegerPositions(false);
@@ -61,7 +62,6 @@ public class HUD {
         // FPS
         if(prefs.getBoolean("fps"))
             fpsPantalla.draw(batch, (int)frameRate + " FPS",  Gdx.graphics.getWidth() - 105, 785);
-
 
         // TIEMPO
         //vidaPantalla.draw(batch, "TIEMPO x "+(TimeUtils.millis()-tiempo)/1000 , camera.position.x-230, camera.position.y+90);

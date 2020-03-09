@@ -9,6 +9,7 @@ public class Constantes {
     public static int ENEMIGO2_VIDA = 10;
     public static int VIDA_PERSONAJE = 5;
     public static int PERSONAJE_SPEED = 4;
+    public static int VELOCIDAD_ESPADAS = 2;
 
     public static float ENEMIGO_VOLADOR_VELOCIDAD_DISPARO = 2;
     public static float ENEMIGO_VOLADOR_VELOCIDAD = 1.3f;

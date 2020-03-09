@@ -1,7 +1,6 @@
 package com.ivn.mijuego.model;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -21,7 +20,7 @@ public class EnemigoVolador {
     public Rectangle rect;
     public int vida;
 
-    public static Array<BalaOvni> balas = new Array<>();
+    public static Array<BalaEnemigoVolador> balas = new Array<>();
 
     public static Animation animation = new Animation(0.15f, new TextureAtlas(Gdx.files.internal("enemigo/volador.atlas")).findRegions("volador"));
     public float stateTime;
@@ -39,11 +38,11 @@ public class EnemigoVolador {
             stateTime += Gdx.graphics.getDeltaTime();
             batch.draw((TextureRegion) (animation.getKeyFrame(stateTime, true)),position.x, position.y);
 
-        for(BalaOvni balaOvni : balas)
-            balaOvni.pintar(batch);
+        for(BalaEnemigoVolador balaEnemigoVolador : balas)
+            balaEnemigoVolador.pintar(batch);
     }
 
-    public void mover(Vector2 personaje){
+    public void mover(Vector2 personaje,  Array<Rectangle> topeEnemigos){
         Vector2 dir = null;
 
         if (personaje.x < position.x -1)
@@ -53,7 +52,10 @@ public class EnemigoVolador {
             dir = new Vector2(1, 0).scl(0.9f);
 
 
-        if (dir!=null) {
+        if (dir!=null ) {
+            for(Rectangle r : topeEnemigos)
+                if(r.overlaps(rect) && personaje.x > position.x +1)
+                    return;
             position.add(dir.scl(velocidad));
             rect.setPosition(position);
         }else
@@ -65,7 +67,7 @@ public class EnemigoVolador {
     }
 
     public void disparar(){
-        EnemigoVolador.balas.add(new BalaOvni(new Vector2(position.x,position.y)));
+        EnemigoVolador.balas.add(new BalaEnemigoVolador(new Vector2(position.x,position.y)));
     }
 
     public void quitarVida(){

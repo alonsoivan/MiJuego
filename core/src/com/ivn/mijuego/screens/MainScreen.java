@@ -33,9 +33,11 @@ public class MainScreen implements Screen {
         playButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new GameScreen1());
+                //((Game) Gdx.app.getApplicationListener()).setScreen(new GameScreen1());
                 //((Game) Gdx.app.getApplicationListener()).setScreen(new GameScreen2(new Personaje(new Vector2( 50,50),5,new World(new Vector2(),true))));
                 //((Game) Gdx.app.getApplicationListener()).setScreen(new GameScreen3(new Personaje(new Vector2( 50,50),5,new World(new Vector2(),true))));
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new GameScreen4(new Personaje(new Vector2( 50,50),5,new World(new Vector2(),true))));
+
                 dispose();
             }
         });

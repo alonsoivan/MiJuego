@@ -29,7 +29,8 @@ import static com.ivn.mijuego.util.Constantes.*;
 public class GameScreen1 implements Screen {
 
     private Personaje personaje;
-    private Array<EnemigoVolador> ovnis;
+    private Array<EnemigoVolador> enemigosVoladores;
+    private Array<Vector2> vectoresEnemigosVoladores;
     private Array<Coin> coins;
     private Array<EnemigoTerrestre1> enemigosTerrestres;
     private Array<Rectangle> topeEnemigos;
@@ -98,9 +99,10 @@ public class GameScreen1 implements Screen {
 
         coins = new Array<>();
         personaje = new Personaje(new Vector2(pos.x,pos.y), VIDA_PERSONAJE, world);
-        ovnis = new Array<>();
+        enemigosVoladores = new Array<>();
         enemigosTerrestres = new Array<>();
         topeEnemigos = new Array<>();
+        vectoresEnemigosVoladores = new Array<>();
     }
 
     private Vector2 getPrincipio(){
@@ -125,6 +127,9 @@ public class GameScreen1 implements Screen {
         getTopeEnemigos();
         generarCoins();
         generarEnemigosTerrestres();
+
+        getVectoresEnemigosVoladores();
+        generarEnemigosVoladores();
     }
 
 
@@ -171,7 +176,7 @@ public class GameScreen1 implements Screen {
 
         personaje.pintar(batch);
 
-        for(EnemigoVolador enemigoVolador : ovnis)
+        for(EnemigoVolador enemigoVolador : enemigosVoladores)
             enemigoVolador.pintar(batch);
 
         for(Coin coin : coins)
@@ -240,8 +245,6 @@ public class GameScreen1 implements Screen {
     private void actualizar(float dt) {
         comprobarTeclado(dt);
 
-        //generarEnemigos();
-
         moverEnemigos();
 
         comprobarColisiones();
@@ -251,16 +254,23 @@ public class GameScreen1 implements Screen {
         world.step(1/60f,6,2);
     }
 
-    private void generarEnemigosVoladores(){
-        /*
-            Timer.schedule(new Timer.Task() {
-                public void run(){
-                    rocas.add(new Roca(new Vector2(Gdx.graphics.getWidth() - 20, MathUtils.random(0, Gdx.graphics.getHeight())), new Texture("enemy/stone1.png"), 3, VELOCIDAD_ROCAS));
-                }
-            }, 1, 1);
+    private void getVectoresEnemigosVoladores(){
+        MapLayer collisionsLayer = map.getLayers().get("enemigosVoladores");
 
-         */
-        ovnis.add(new EnemigoVolador(new Vector2(-50,210)));
+        for (MapObject object : collisionsLayer.getObjects()) {
+            RectangleMapObject rectangleObject = (RectangleMapObject) object;
+
+            Rectangle rect = rectangleObject.getRectangle();
+
+            vectoresEnemigosVoladores.add(new Vector2(rect.x, rect.y));
+        }
+    }
+
+    private void generarEnemigosVoladores(){
+
+        for(Vector2 pos : vectoresEnemigosVoladores)
+            enemigosVoladores.add(new EnemigoVolador(pos.cpy()));
+
     }
 
     private void generarEnemigosTerrestres(){
@@ -281,14 +291,14 @@ public class GameScreen1 implements Screen {
         for(BalaPj bala : personaje.balas)
             bala.mover();
 
-        for(BalaOvni balaOvni : EnemigoVolador.balas)
-            balaOvni.mover();
+        for(BalaEnemigoVolador balaEnemigoVolador : EnemigoVolador.balas)
+            balaEnemigoVolador.mover();
 
     }
 
     private void moverEnemigos(){
-        for(EnemigoVolador enemigoVolador : ovnis)
-            enemigoVolador.mover(personaje.b2body.getPosition());
+        for(EnemigoVolador enemigoVolador : enemigosVoladores)
+            enemigoVolador.mover(personaje.b2body.getPosition(),topeEnemigos);
 
         for(EnemigoTerrestre1 ene : enemigosTerrestres)
             ene.mover(topeEnemigos,personaje.b2body.getPosition());
@@ -334,21 +344,22 @@ public class GameScreen1 implements Screen {
                     personaje.balas.removeValue(bala, true);
                 }
 
-            for(BalaOvni bala : EnemigoVolador.balas) {
+            for(BalaEnemigoVolador bala : EnemigoVolador.balas) {
                 if (bala.rect.overlaps(rect)) {
                     EnemigoVolador.balas.removeValue(bala, true);
                 }
             }
         }
 
-        for(EnemigoVolador enemigoVolador : ovnis)
+        for(EnemigoVolador enemigoVolador : enemigosVoladores)
             for(BalaPj bala : personaje.balas)
                 if (bala.rect.overlaps(enemigoVolador.rect)){
                     personaje.balas.removeValue(bala, true);
                     enemigoVolador.quitarVida();
                     if(enemigoVolador.estaMuerto()) {
-                        ovnis.removeValue(enemigoVolador, true);
-                        generarEnemigosVoladores();
+                        enemigosVoladores.removeValue(enemigoVolador, true);
+                        if(enemigosVoladores.size == 0)
+                            generarEnemigosVoladores();
                     }
                 }
 
@@ -359,9 +370,9 @@ public class GameScreen1 implements Screen {
                 personaje.coins++;
             }
 
-        for(BalaOvni  balaOvni :  EnemigoVolador.balas)
-            if(balaOvni.rect.overlaps(new Rectangle(personaje.b2body.getPosition().x -8 ,personaje.b2body.getPosition().y -14,personaje.getTextura().getRegionWidth(),personaje.getTextura().getRegionHeight()))){
-                EnemigoVolador.balas.removeValue(balaOvni, true);
+        for(BalaEnemigoVolador balaEnemigoVolador :  EnemigoVolador.balas)
+            if(balaEnemigoVolador.rect.overlaps(new Rectangle(personaje.b2body.getPosition().x -8 ,personaje.b2body.getPosition().y -14,personaje.getTextura().getRegionWidth(),personaje.getTextura().getRegionHeight()))){
+                EnemigoVolador.balas.removeValue(balaEnemigoVolador, true);
                 personaje.quitarVida();
             }
 
@@ -403,8 +414,7 @@ public class GameScreen1 implements Screen {
             personaje.moverIzquierda();
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE))
-            //personaje.disparar(getMousePosInGameWorld());
-            generarEnemigosVoladores();
+            personaje.disparar(getMousePosInGameWorld());
 
         if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE))
             ((Game) Gdx.app.getApplicationListener()).setScreen(new MainScreen());

@@ -10,15 +10,14 @@ import com.badlogic.gdx.math.Vector2;
 
 import static com.ivn.mijuego.util.Constantes.ENEMIGO_VOLADOR_VELOCIDAD_DISPARO;
 
-public class BalaOvni {
+public class BalaEnemigoVolador {
     public Vector2 position;
     public float velocidad;
     public Rectangle rect;
     private float stateTime;
     public static Animation animationBala = new Animation(0.15f, new TextureAtlas(Gdx.files.internal("balas/bala.atlas")).findRegions("bala"));
 
-
-    public BalaOvni(Vector2 position){
+    public BalaEnemigoVolador(Vector2 position){
         this.position = position;
         this.rect = new Rectangle(position.x, position.y, 9, 24);
         this.velocidad = ENEMIGO_VOLADOR_VELOCIDAD_DISPARO;

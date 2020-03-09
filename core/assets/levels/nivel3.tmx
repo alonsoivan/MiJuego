@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.2" tiledversion="1.3.2" orientation="orthogonal" renderorder="right-down" compressionlevel="-1" width="90" height="15" tilewidth="16" tileheight="16" infinite="0" nextlayerid="11" nextobjectid="73">
+<map version="1.2" tiledversion="1.3.2" orientation="orthogonal" renderorder="right-down" compressionlevel="0" width="90" height="15" tilewidth="16" tileheight="16" infinite="0" nextlayerid="12" nextobjectid="76">
  <tileset firstgid="1" name="nature-paltformer-tileset-16x16_blue" tilewidth="16" tileheight="16" tilecount="77" columns="7">
   <image source="nature-paltformer-tileset-16x16_blue.png" width="112" height="176"/>
  </tileset>
@@ -115,6 +115,7 @@
   <object id="38" x="1072" y="128" width="16" height="48"/>
   <object id="39" x="160" y="192" width="16" height="48"/>
   <object id="40" x="256" y="192" width="16" height="48"/>
+  <object id="75" x="192" y="0" width="32" height="48"/>
  </objectgroup>
  <objectgroup id="9" name="coins">
   <object id="49" x="12" y="121" width="8" height="13.6667">
@@ -171,5 +172,9 @@
  </objectgroup>
  <objectgroup id="10" name="fin">
   <object id="72" x="36.3125" y="36.6875" width="7.1875" height="10.375"/>
+ </objectgroup>
+ <objectgroup id="11" name="enemigosVoladores">
+  <object id="73" x="-16" y="16" width="16" height="16"/>
+  <object id="74" x="-16" y="0" width="16" height="16"/>
  </objectgroup>
 </map>

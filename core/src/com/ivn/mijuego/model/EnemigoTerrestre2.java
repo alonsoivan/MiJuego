@@ -64,7 +64,6 @@ public class EnemigoTerrestre2 {
             if(r.overlaps(rect))
                 dir = !dir;
 
-
         if (dir)
             position.add(new Vector2(1,0).scl(velocidad));
         else

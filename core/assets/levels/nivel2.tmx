@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.2" tiledversion="1.3.2" orientation="orthogonal" renderorder="right-down" compressionlevel="0" width="90" height="15" tilewidth="16" tileheight="16" infinite="0" nextlayerid="10" nextobjectid="35">
+<map version="1.2" tiledversion="1.3.2" orientation="orthogonal" renderorder="right-down" compressionlevel="0" width="90" height="15" tilewidth="16" tileheight="16" infinite="0" nextlayerid="11" nextobjectid="38">
  <tileset firstgid="1" name="nature-paltformer-tileset-16x16" tilewidth="16" tileheight="16" tilecount="77" columns="7">
   <image source="nature-paltformer-tileset-16x16_red.png" width="112" height="176"/>
  </tileset>
@@ -110,4 +110,9 @@
 9,9,9,9,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,32,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,33,34,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
+ <objectgroup id="10" name="enemigosVoladores">
+  <object id="35" x="-16" y="16" width="16" height="16"/>
+  <object id="36" x="1440" y="32" width="16" height="16"/>
+  <object id="37" x="-16" y="48" width="16" height="16"/>
+ </objectgroup>
 </map>
