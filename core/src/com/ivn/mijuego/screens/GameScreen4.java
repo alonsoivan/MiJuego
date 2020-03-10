@@ -27,6 +27,7 @@ import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.Timer;
 import com.ivn.mijuego.model.*;
 
+import static com.ivn.mijuego.screens.ConfigurationScreen.prefs;
 import static com.ivn.mijuego.util.Constantes.*;
 
 public class GameScreen4 implements Screen {
@@ -58,7 +59,9 @@ public class GameScreen4 implements Screen {
     private World world;
     //private Box2DDebugRenderer b2dr;
 
-    public GameScreen4(Personaje personaje){
+    public GameScreen4(int vida, int monedas){
+        prefs.putString("nivel", "4");
+        prefs.flush();
 
         world = new World(new Vector2(0,-10f),true);
 
@@ -101,8 +104,8 @@ public class GameScreen4 implements Screen {
         Vector2 pos = getPrincipio();
 
         coins = new Array<>();
-        this.personaje = new Personaje(new Vector2(pos.x,pos.y), personaje.getVidas(), world);
-        this.personaje.setCoins(personaje.getCoins());
+        this.personaje = new Personaje(new Vector2(pos.x,pos.y), vida, world);
+        this.personaje.setCoins(monedas);
 
         enemigosVoladores = new Array<>();
         enemigosTerrestres1 = new Array<>();
@@ -313,6 +316,10 @@ public class GameScreen4 implements Screen {
             personaje.b2body.setTransform(getPrincipio(), personaje.b2body.getAngle());
         }
 
+        for(BalaPj bala : personaje.balas)
+            if(bala.position.x < 0 || bala.position.y < 0 || bala.position.y > Gdx.graphics.getHeight() || bala.position.x > Gdx.graphics.getWidth())
+                personaje.balas.removeValue(bala,true);
+
         for(Espada espada : espadas) {
             if (espada.position.y > TILES_IN_CAMERA_HEIGHT * TILE_WIDTH) {
                 espadas.removeValue(espada, true);
@@ -422,8 +429,10 @@ public class GameScreen4 implements Screen {
 
         MapLayer finLayer = map.getLayers().get("fin");
         for (MapObject object : finLayer.getObjects())
-            if (((RectangleMapObject) object).getRectangle().overlaps(personaje.rect))
-                ((Game) Gdx.app.getApplicationListener()).setScreen( new GameOverScreen(true));
+            if (((RectangleMapObject) object).getRectangle().overlaps(personaje.rect)) {
+                Timer.instance().clear();
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new GameOverScreen(true));
+            }
     }
 
     private void comprobarTeclado(float dt) {
@@ -433,8 +442,16 @@ public class GameScreen4 implements Screen {
 
         personaje.b2body.applyForce(new Vector2( personaje.b2body.getLinearVelocity().x,-600),personaje.b2body.getWorldCenter(),false);
 
-        if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE))
+        if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)){
+            Timer.instance().clear();
+
+            prefs.putInteger("vida", personaje.getVidas());
+            prefs.putInteger("monedas", personaje.getCoins());
+            prefs.putString("nivel", "4");
+            prefs.flush();
+
             ((Game) Gdx.app.getApplicationListener()).setScreen(new MainScreen());
+        }
 
         if (Gdx.input.isKeyPressed(Input.Keys.D))
             personaje.moverDerecha();

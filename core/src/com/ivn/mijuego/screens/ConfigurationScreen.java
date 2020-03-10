@@ -70,8 +70,10 @@ public class ConfigurationScreen implements Screen {
 
         cbbDificultad = new VisSelectBox<>();
         cbbDificultad.setBounds(100,400,100,50);
+
         cbbDificultad.setItems(new String[]{"FACIL","NORMAL","DIFICIL"});
-        cbbDificultad.setSelected(prefs.getString("dificultad"));
+
+        cbbDificultad.setSelected(prefs.getString("dificultad","NORMAL"));
 
         VisTextButton btVolver = new VisTextButton("VOLVER");
         btVolver.setBounds(100,200,200,50);
@@ -81,28 +83,9 @@ public class ConfigurationScreen implements Screen {
 
                 String selection = cbbDificultad.getSelected();
 
-                switch (selection){
-                    case "FACIL":
-                        VIDA_PERSONAJE = 10;
-                        ENEMIGO2_VIDA = 5;
-                        ENEMIGO_VIDA = 2;
-                        break;
-                    case "NORMAL":
-                        VIDA_PERSONAJE = 5;
-                        ENEMIGO2_VIDA = 10;
-                        ENEMIGO_VIDA = 6;
-                        break;
-                    case "DIFICIL":
-                        VIDA_PERSONAJE = 1;
-                        ENEMIGO2_VIDA = 30;
-                        ENEMIGO_VIDA = 18;
-                        break;
-                }
-
                 prefs.putString("dificultad",selection);
-
-
                 prefs.flush();
+
                 ((Game) Gdx.app.getApplicationListener()).setScreen(new MainScreen());
             }
         });

@@ -24,6 +24,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.ivn.mijuego.model.*;
 
+import static com.ivn.mijuego.screens.ConfigurationScreen.prefs;
 import static com.ivn.mijuego.util.Constantes.*;
 
 public class GameScreen1 implements Screen {
@@ -50,10 +51,12 @@ public class GameScreen1 implements Screen {
 
     // Box2d
     private World world;
-    //private Box2DDebugRenderer b2dr;
+    private Box2DDebugRenderer b2dr;
 
 
     public GameScreen1(){
+        prefs.putString("nivel", "1");
+        prefs.flush();
 
         world = new World(new Vector2(0,-10f),true);
 
@@ -67,7 +70,7 @@ public class GameScreen1 implements Screen {
         batch = renderer.getBatch();
 
         // create renderer with default values
-        //b2dr = new Box2DDebugRenderer();
+        b2dr = new Box2DDebugRenderer();
 
 
         // Colisiones suelo
@@ -157,7 +160,7 @@ public class GameScreen1 implements Screen {
         Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
 
         renderer.render();
-        //b2dr.render(world,camera.combined);
+        b2dr.render(world,camera.combined);
 
 
         // NPI
@@ -327,6 +330,10 @@ public class GameScreen1 implements Screen {
             personaje.b2body.setTransform(getPrincipio(), personaje.b2body.getAngle());
         }
 
+        for(BalaPj bala : personaje.balas)
+            if(bala.position.x < 0 || bala.position.y < 0 || bala.position.y > Gdx.graphics.getHeight())
+                personaje.balas.removeValue(bala,true);
+
         // Obtiene todos los objetos de la capa 'colision'
         MapLayer collisionsLayer = map.getLayers().get("colisiones");
 
@@ -396,7 +403,7 @@ public class GameScreen1 implements Screen {
         MapLayer finLayer = map.getLayers().get("fin");
         for (MapObject object : finLayer.getObjects())
             if (((RectangleMapObject) object).getRectangle().overlaps(personaje.rect))
-                ((Game) Gdx.app.getApplicationListener()).setScreen( new GameScreen2(personaje));
+                ((Game) Gdx.app.getApplicationListener()).setScreen( new GameScreen2(personaje.getVidas(), personaje.getCoins()));
 
     }
 

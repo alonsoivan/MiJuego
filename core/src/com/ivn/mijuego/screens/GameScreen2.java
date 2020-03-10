@@ -25,6 +25,7 @@ import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.Timer;
 import com.ivn.mijuego.model.*;
 
+import static com.ivn.mijuego.screens.ConfigurationScreen.prefs;
 import static com.ivn.mijuego.util.Constantes.*;
 
 public class GameScreen2 implements Screen {
@@ -55,7 +56,9 @@ public class GameScreen2 implements Screen {
     private World world;
     //private Box2DDebugRenderer b2dr;
 
-    public GameScreen2(Personaje personaje){
+    public GameScreen2( int vida, int monedas){
+        prefs.putString("nivel", "2");
+        prefs.flush();
 
         world = new World(new Vector2(0,-10f),true);
 
@@ -99,8 +102,8 @@ public class GameScreen2 implements Screen {
 
 
         coins = new Array<>();
-        this.personaje = new Personaje(new Vector2(pos.x,pos.y), personaje.getVidas(), world);
-        this.personaje.setCoins(personaje.getCoins());
+        this.personaje = new Personaje(new Vector2(pos.x,pos.y), vida, world);
+        this.personaje.setCoins(monedas);
 
         enemigosVoladores = new Array<>();
         enemigosTerrestres = new Array<>();
@@ -137,17 +140,23 @@ public class GameScreen2 implements Screen {
         // DISPSROS ENEMIGOS T2 A REVISAR
         generarDisparoEnemigosT2();
 
+
+
+
         Timer.schedule(new Timer.Task() {
             public void run() {
                 generarDisparoEnemigosT2();
             }
         }, 0.05f);
 
+
         Timer.schedule(new Timer.Task() {
             public void run() {
                 generarDisparoEnemigosT2();
             }
         }, 0.10f);
+
+
     }
 
     private void getVectoresEnemigosVoladores(){
@@ -263,6 +272,10 @@ public class GameScreen2 implements Screen {
             personaje.b2body.setTransform(getPrincipio(), personaje.b2body.getAngle());
         }
 
+        for(BalaPj bala : personaje.balas)
+            if(bala.position.x < 0 || bala.position.y < 0 || bala.position.y > Gdx.graphics.getHeight() || bala.position.x > Gdx.graphics.getWidth())
+                personaje.balas.removeValue(bala,true);
+
         // Obtiene todos los objetos de la capa 'colision'
         MapLayer collisionsLayer = map.getLayers().get("colisiones");
 
@@ -343,8 +356,11 @@ public class GameScreen2 implements Screen {
 
         MapLayer finLayer = map.getLayers().get("fin");
         for (MapObject object : finLayer.getObjects())
-            if (((RectangleMapObject) object).getRectangle().overlaps(personaje.rect))
-                ((Game) Gdx.app.getApplicationListener()).setScreen( new GameScreen3(personaje));
+            if (((RectangleMapObject) object).getRectangle().overlaps(personaje.rect)) {
+                Timer.instance().clear();
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new GameScreen3(personaje.getVidas(), personaje.getCoins()));
+                dispose();
+            }
     }
 
     private void comprobarTeclado(float dt) {
@@ -354,8 +370,18 @@ public class GameScreen2 implements Screen {
 
         personaje.b2body.applyForce(new Vector2( personaje.b2body.getLinearVelocity().x,-600),personaje.b2body.getWorldCenter(),false);
 
-        if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE))
+        if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)){
+
+            Timer.instance().clear();
+
+            prefs.putInteger("vida", personaje.getVidas());
+            prefs.putInteger("monedas", personaje.getCoins());
+            prefs.putString("nivel", "2");
+            prefs.flush();
+
             ((Game) Gdx.app.getApplicationListener()).setScreen(new MainScreen());
+            dispose();
+        }
 
         if (Gdx.input.isKeyPressed(Input.Keys.D))
             personaje.moverDerecha();

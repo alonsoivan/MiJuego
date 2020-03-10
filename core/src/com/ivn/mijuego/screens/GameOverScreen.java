@@ -13,6 +13,8 @@ import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 
+import static com.ivn.mijuego.screens.ConfigurationScreen.prefs;
+
 public class GameOverScreen implements Screen {
 
     private Stage stage;
@@ -22,6 +24,9 @@ public class GameOverScreen implements Screen {
     private SpriteBatch batch = new SpriteBatch();
 
     public GameOverScreen(boolean win){
+        prefs.putString("nivel", "1");
+        prefs.flush();
+
         if(win)
             texture = new Texture("espadas/game_won.png");
         else

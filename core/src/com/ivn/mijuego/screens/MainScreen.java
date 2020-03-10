@@ -15,6 +15,9 @@ import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 
+import static com.ivn.mijuego.screens.ConfigurationScreen.prefs;
+import static com.ivn.mijuego.util.Constantes.*;
+
 public class MainScreen implements Screen {
     Stage stage;
 
@@ -31,12 +34,57 @@ public class MainScreen implements Screen {
 
         VisTextButton playButton = new VisTextButton("PLAY");
         playButton.addListener(new ClickListener() {
+
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                //((Game) Gdx.app.getApplicationListener()).setScreen(new GameScreen1());
-                //((Game) Gdx.app.getApplicationListener()).setScreen(new GameScreen2(new Personaje(new Vector2( 50,50),5,new World(new Vector2(),true))));
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new GameScreen3(new Personaje(new Vector2( 50,50),5,new World(new Vector2(),true))));
-                //((Game) Gdx.app.getApplicationListener()).setScreen(new GameScreen4(new Personaje(new Vector2( 50,50),5,new World(new Vector2(),true))));
+                int vida = prefs.getInteger("vida");
+                int monedas = prefs.getInteger("monedas");
+
+                String selection = prefs.getString("dificultad");
+
+                switch (selection){
+                    case "FACIL":
+                        VIDA_PERSONAJE = 10;
+                        ENEMIGO2_VIDA = 5;
+                        ENEMIGO_VIDA = 2;
+                        break;
+                    case "NORMAL":
+                        VIDA_PERSONAJE = 5;
+                        ENEMIGO2_VIDA = 10;
+                        ENEMIGO_VIDA = 6;
+                        break;
+                    case "DIFICIL":
+                        VIDA_PERSONAJE = 1;
+                        ENEMIGO2_VIDA = 30;
+                        ENEMIGO_VIDA = 18;
+                        break;
+                    default:
+                        VIDA_PERSONAJE = 10;
+                        ENEMIGO2_VIDA = 5;
+                        ENEMIGO_VIDA = 2;
+                        break;
+                }
+
+                switch (prefs.getString("nivel")) {
+                    case "1":
+                        ((Game) Gdx.app.getApplicationListener()).setScreen(new GameScreen1());
+                        break;
+                    case "2":
+                        ((Game) Gdx.app.getApplicationListener()).setScreen(new GameScreen2(vida, monedas));
+                        break;
+                    case "3":
+                        ((Game) Gdx.app.getApplicationListener()).setScreen(new GameScreen3(vida, monedas));
+
+                        break;
+                    case "4":
+                        ((Game) Gdx.app.getApplicationListener()).setScreen(new GameScreen4(vida, monedas));
+                        break;
+
+                    default:
+                        ((Game) Gdx.app.getApplicationListener()).setScreen(new GameScreen1());
+                        break;
+                }
+
 
                 dispose();
             }

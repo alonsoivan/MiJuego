@@ -222,9 +222,9 @@ public class Personaje extends Sprite {
 
             empujar();
 
-            if(estaMuerto())
-                ((Game) Gdx.app.getApplicationListener()).setScreen( new GameOverScreen(false));
-
+            if(estaMuerto()) {
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new GameOverScreen(false));
+            }
             getInmunidad();
         }
     }
