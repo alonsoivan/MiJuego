@@ -296,6 +296,7 @@ public class GameScreen2 implements Screen {
 
             for(BalaEnemigoVolador bala : EnemigoVolador.balas) {
                 if (bala.rect.overlaps(rect)) {
+                    EnemigoVolador.playHitSound();
                     EnemigoVolador.balas.removeValue(bala, true);
                 }
             }
@@ -321,7 +322,7 @@ public class GameScreen2 implements Screen {
                 }
 
         for(Coin coin: coins)
-            if(personaje.rect.overlaps(coin.rect)){
+            if((new Rectangle(personaje.b2body.getPosition().x -8 ,personaje.b2body.getPosition().y -14,personaje.getTextura().getRegionWidth(),personaje.getTextura().getRegionHeight())).overlaps(coin.rect)){
                 Coin.playCoinSound();
                 coins.removeValue(coin, true);
                 personaje.coins++;
@@ -397,6 +398,7 @@ public class GameScreen2 implements Screen {
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.R)){
+            Timer.instance().clear();
             ((Game) Gdx.app.getApplicationListener()).setScreen(new GameScreen1());
         }
     }

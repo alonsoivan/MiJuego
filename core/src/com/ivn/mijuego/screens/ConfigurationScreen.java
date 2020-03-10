@@ -10,9 +10,13 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.kotcrab.vis.ui.VisUI;
-import com.kotcrab.vis.ui.widget.*;
+import com.kotcrab.vis.ui.widget.VisCheckBox;
+import com.kotcrab.vis.ui.widget.VisLabel;
+import com.kotcrab.vis.ui.widget.VisSelectBox;
+import com.kotcrab.vis.ui.widget.VisTextButton;
 
-import static com.ivn.mijuego.util.Constantes.*;
+import static com.ivn.mijuego.util.Constantes.APP_NAME;
+import static com.ivn.mijuego.util.Constantes.stopMusicaFondo;
 
 public class ConfigurationScreen implements Screen {
 
@@ -33,11 +37,11 @@ public class ConfigurationScreen implements Screen {
         stage = new Stage();
 
         lbTitulo = new VisLabel("CONFIGURACIÓN", Color.RED);
-        lbTitulo.setFontScale(2);
-        lbTitulo.setBounds(100,700,20,20);
+        lbTitulo.setFontScale(2f);
+        lbTitulo.setBounds(600,700,20,20);
 
         ccbSonido = new VisCheckBox("SONIDO");
-        ccbSonido.setBounds(100,600,100,50);
+        ccbSonido.setBounds(615,600,100,50);
 
         if(prefs.getBoolean("sound"))
             ccbSonido.setChecked(true);
@@ -47,14 +51,16 @@ public class ConfigurationScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 if(ccbSonido.isChecked())
                     prefs.putBoolean("sound",true);
-                else
+                else{
                     prefs.putBoolean("sound",false);
+                    stopMusicaFondo();
+                }
             }
         });
 
 
         ccbFps = new VisCheckBox("MOSTRAR FPS");
-        ccbFps.setBounds(100,500,150,50);
+        ccbFps.setBounds(600,500,150,50);
         if(prefs.getBoolean("fps"))
             ccbFps.setChecked(true);
 
@@ -69,21 +75,19 @@ public class ConfigurationScreen implements Screen {
         });
 
         cbbDificultad = new VisSelectBox<>();
-        cbbDificultad.setBounds(100,400,100,50);
+        cbbDificultad.setBounds(615,400,100,50);
 
         cbbDificultad.setItems(new String[]{"FACIL","NORMAL","DIFICIL"});
 
         cbbDificultad.setSelected(prefs.getString("dificultad","NORMAL"));
 
         VisTextButton btVolver = new VisTextButton("VOLVER");
-        btVolver.setBounds(100,200,200,50);
+        btVolver.setBounds(600,200,200,50);
         btVolver.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
 
-                String selection = cbbDificultad.getSelected();
-
-                prefs.putString("dificultad",selection);
+                prefs.putString("dificultad",cbbDificultad.getSelected());
                 prefs.flush();
 
                 ((Game) Gdx.app.getApplicationListener()).setScreen(new MainScreen());
@@ -112,24 +116,17 @@ public class ConfigurationScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        // Redimensiona la escena al redimensionar la ventana del juego
         stage.getViewport().update(width, height);
     }
 
     @Override
-    public void pause() {
-
-    }
+    public void pause() { }
 
     @Override
-    public void resume() {
-
-    }
+    public void resume() { }
 
     @Override
-    public void hide() {
-
-    }
+    public void hide() { }
 
     @Override
     public void dispose() {

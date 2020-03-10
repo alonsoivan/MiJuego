@@ -61,11 +61,7 @@ public class HUD {
 
         // FPS
         if(prefs.getBoolean("fps"))
-            fpsPantalla.draw(batch, (int)frameRate + " FPS",  Gdx.graphics.getWidth() - 105, 785);
-
-        // TIEMPO
-        //vidaPantalla.draw(batch, "TIEMPO x "+(TimeUtils.millis()-tiempo)/1000 , camera.position.x-230, camera.position.y+90);
-
+            fpsPantalla.draw(batch, (int)frameRate + " FPS",  Gdx.graphics.getWidth() - 105, Gdx.graphics.getHeight() - 30);
 
     }
 

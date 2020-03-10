@@ -152,6 +152,6 @@
   </object>
  </objectgroup>
  <objectgroup id="10" name="fin">
-  <object id="29" x="1237.25" y="52.5" width="5" height="9"/>
+  <object id="29" x="1232" y="48" width="16" height="16"/>
  </objectgroup>
 </map>

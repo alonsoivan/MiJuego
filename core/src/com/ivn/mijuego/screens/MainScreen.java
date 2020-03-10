@@ -3,13 +3,11 @@ package com.ivn.mijuego.screens;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.ivn.mijuego.model.Personaje;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
@@ -19,10 +17,17 @@ import static com.ivn.mijuego.screens.ConfigurationScreen.prefs;
 import static com.ivn.mijuego.util.Constantes.*;
 
 public class MainScreen implements Screen {
-    Stage stage;
+    private Stage stage;
+
+    public static Music musicaFondo = Gdx.audio.newMusic(Gdx.files.internal("musica_fondo.mp3"));
 
     @Override
     public void show() {
+        if(prefs.getBoolean("sound"))
+            if (!musicaFondo.isPlaying())
+                playMusicaFondo();
+
+
         if (!VisUI.isLoaded())
             VisUI.load();
 

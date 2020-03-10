@@ -4,12 +4,10 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
@@ -39,7 +37,6 @@ public class GameScreen3 implements Screen {
     private Array<EnemigoTerrestre2> enemigosTerrestres2;
     private Array<Rectangle> topeEnemigos;
     private Array<Vector2> vectoresEnemigosVoladores;
-
 
 
     // HUD
@@ -168,7 +165,6 @@ public class GameScreen3 implements Screen {
     }
 
     private Vector2 getPrincipio(){
-        // Obtiene todos los objetos de la capa 'colision'
         MapLayer collisionsLayer = map.getLayers().get("principio");
 
         RectangleMapObject rectangleObject = (RectangleMapObject) collisionsLayer.getObjects().get(0);;
@@ -177,23 +173,16 @@ public class GameScreen3 implements Screen {
     }
 
     private void generarCoins(){
-        // Obtiene todos los objetos de la capa 'colision'
         MapLayer collisionsLayer = map.getLayers().get("coins");
 
         for (MapObject object : collisionsLayer.getObjects()) {
-            //RectangleMapObject rectangleObject = (RectangleMapObject) object;
-
             EllipseMapObject circleMapObject = (EllipseMapObject) object;
-
-            // Caso 3: Obtiene el rectangulo ocupado por el objeto
-            //Rectangle rect = circleMapObject.getRectangle();
 
             coins.add(new Coin(new Vector2(circleMapObject.getEllipse().x, circleMapObject.getEllipse().y)));
         }
     }
 
     private void generarEnemigosTerrestres1(){
-        // Obtiene todos los objetos de la capa 'colision'
         MapLayer collisionsLayer = map.getLayers().get("enemigosT1");
 
         for (MapObject object : collisionsLayer.getObjects()) {
@@ -206,7 +195,6 @@ public class GameScreen3 implements Screen {
     }
 
     private void generarEnemigosTerrestres2(){
-        // Obtiene todos los objetos de la capa 'colision'
         MapLayer collisionsLayer = map.getLayers().get("enemigosT2");
 
         for (MapObject object : collisionsLayer.getObjects()) {
@@ -231,10 +219,6 @@ public class GameScreen3 implements Screen {
             camera.position.set(TILES_IN_CAMERA_WIDTH * TILE_WIDTH / 2, TILES_IN_CAMERA_HEIGHT * TILE_WIDTH / 2 , 0);
         else
             camera.position.set(personaje.b2body.getPosition().x, TILES_IN_CAMERA_HEIGHT * TILE_WIDTH / 2 , 0);
-        /*
-        camera.update();
-        renderer.setView(camera);
-        */
 
         // These values likely need to be scaled according to your world coordinates.
         // The left boundary of the map (x)
@@ -266,15 +250,6 @@ public class GameScreen3 implements Screen {
         camera.update();
         renderer.setView(camera);
 
-        /*
-        camera.position.x = personaje.b2body.getPosition().x;
-
-        //update our gamecam with correct coordinates after changes
-        camera.update();
-        //tell our renderer to draw only what our camera can see in our game world.
-        renderer.setView(camera);
-        renderer.render();
-        */
     }
 
 
@@ -289,13 +264,11 @@ public class GameScreen3 implements Screen {
             if(bala.position.x < 0 || bala.position.y < 0 || bala.position.y > Gdx.graphics.getHeight() || bala.position.x > Gdx.graphics.getWidth())
                 personaje.balas.removeValue(bala,true);
 
-        // Obtiene todos los objetos de la capa 'colision'
         MapLayer collisionsLayer = map.getLayers().get("colisiones");
 
         for (MapObject object : collisionsLayer.getObjects()) {
             RectangleMapObject rectangleObject = (RectangleMapObject) object;
 
-            // Caso 3: Obtiene el rectangulo ocupado por el objeto
             Rectangle rect = rectangleObject.getRectangle();
 
             if(rect.overlaps(personaje.rect))
@@ -309,6 +282,7 @@ public class GameScreen3 implements Screen {
 
             for(BalaEnemigoVolador bala : EnemigoVolador.balas) {
                 if (bala.rect.overlaps(rect)) {
+                    EnemigoVolador.playHitSound();
                     EnemigoVolador.balas.removeValue(bala, true);
                 }
             }
@@ -335,7 +309,7 @@ public class GameScreen3 implements Screen {
                 }
 
         for(Coin coin: coins)
-            if(personaje.rect.overlaps(coin.rect)){
+            if((new Rectangle(personaje.b2body.getPosition().x -8 ,personaje.b2body.getPosition().y -14,personaje.getTextura().getRegionWidth(),personaje.getTextura().getRegionHeight())).overlaps(coin.rect)){
                 Coin.playCoinSound();
                 coins.removeValue(coin, true);
                 personaje.coins++;
@@ -423,17 +397,16 @@ public class GameScreen3 implements Screen {
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.R)){
+            Timer.instance().clear();
             ((Game) Gdx.app.getApplicationListener()).setScreen(new GameScreen1());
         }
     }
 
     private void getTopeEnemigos(){
-        // Obtiene todos los objetos de la capa 'colision'
         MapLayer collisionsLayer = map.getLayers().get("topeEnemigos");
 
         for (MapObject object : collisionsLayer.getObjects())
             topeEnemigos.add(((RectangleMapObject) object).getRectangle());
-
     }
 
     private void moverEnemigos(){
@@ -530,27 +503,18 @@ public class GameScreen3 implements Screen {
     }
 
     @Override
-    public void resize(int width, int height) {
-
-    }
+    public void resize(int width, int height) { }
 
     @Override
-    public void pause() {
-
-    }
+    public void pause() { }
 
     @Override
-    public void resume() {
-
-    }
+    public void resume() { }
 
     @Override
-    public void hide() {
-
-    }
+    public void hide() { }
 
     @Override
     public void dispose() {
-
     }
 }

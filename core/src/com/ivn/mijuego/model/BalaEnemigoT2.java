@@ -10,7 +10,6 @@ import com.badlogic.gdx.math.Vector2;
 public class BalaEnemigoT2 {
 
     public Vector2 position;
-    public int velocidad;
     public Rectangle rect;
 
     public Texture textura = new Texture("balas/balasEnemigoT2.png");
@@ -48,5 +47,4 @@ public class BalaEnemigoT2 {
         position.add(direction);
         rect.setPosition(position);
     }
-
 }

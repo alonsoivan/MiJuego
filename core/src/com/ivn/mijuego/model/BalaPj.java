@@ -13,7 +13,6 @@ import com.badlogic.gdx.math.Vector3;
 public class BalaPj {
 
     public Vector2 position;
-    public int velocidad;
     public Rectangle rect;
 
     public static Animation balaPjAnimation = new Animation(0.15f, new TextureAtlas(Gdx.files.internal("personaje/balasPj.atlas")).findRegions("bala"));
@@ -22,7 +21,7 @@ public class BalaPj {
 
     Vector2 direction;
     public BalaPj(Vector2 position,  Vector3 target){
-        this.position = position;
+        this.position = new Vector2(position.x-5, position.y);
         this.rect = new Rectangle(position.x, position.y, 8, 8);
 
         getDirectionBala(target);

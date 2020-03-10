@@ -1,5 +1,7 @@
 package com.ivn.mijuego.util;
 
+import static com.ivn.mijuego.screens.MainScreen.musicaFondo;
+
 public class Constantes {
 
     public static String APP_NAME = "MiJuego";
@@ -17,4 +19,15 @@ public class Constantes {
     public static int TILES_IN_CAMERA_WIDTH = 30;
     public static int TILES_IN_CAMERA_HEIGHT = 15;
     public static int TILE_WIDTH = 16;
+
+    public static void playMusicaFondo(){
+        musicaFondo.setLooping(true);
+        musicaFondo.setVolume(0.2f);
+        musicaFondo.play();
+    }
+
+    public static void stopMusicaFondo(){
+        musicaFondo.setLooping(false);
+        musicaFondo.stop();
+    }
 }

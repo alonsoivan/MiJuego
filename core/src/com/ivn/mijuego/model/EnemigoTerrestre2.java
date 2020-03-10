@@ -12,9 +12,9 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 
-import static com.ivn.mijuego.model.Personaje.hitSound2;
 import static com.ivn.mijuego.screens.ConfigurationScreen.prefs;
-import static com.ivn.mijuego.util.Constantes.*;
+import static com.ivn.mijuego.util.Constantes.ENEMIGO2_VIDA;
+import static com.ivn.mijuego.util.Constantes.ENEMIGO_SPEED;
 
 public class EnemigoTerrestre2 {
 

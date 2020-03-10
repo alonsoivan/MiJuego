@@ -22,7 +22,7 @@ public class Coin {
 
     public Coin(Vector2 posicion) {
         this.posicion = posicion;
-        this.rect = new Rectangle(posicion.x, posicion.y, 14 ,14 );
+        this.rect = new Rectangle(posicion.x, posicion.y, 8 ,8 );
     }
 
     public void pintar(Batch batch){

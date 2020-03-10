@@ -63,8 +63,6 @@ public class GameOverScreen implements Screen {
             }
         });
 
-        VisLabel aboutLabel = new VisLabel("MiJuego libGDX\n(c) IVÁN ALONSO 2020");
-
         stage.addActor(btSalit);
         stage.addActor(volver_a_intentarlo);
 
@@ -89,28 +87,20 @@ public class GameOverScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        // Redimensiona la escena al redimensionar la ventana del juego
         stage.getViewport().update(width, height);
     }
 
     @Override
-    public void pause() {
-
-    }
+    public void pause() {}
 
     @Override
-    public void resume() {
-
-    }
+    public void resume() {}
 
     @Override
-    public void hide() {
-
-    }
+    public void hide() {}
 
     @Override
     public void dispose() {
-        // Libera los recursos de la escena
         stage.dispose();
     }
 }

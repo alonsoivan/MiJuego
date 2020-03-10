@@ -33,12 +33,9 @@ import static com.ivn.mijuego.util.Constantes.*;
 public class GameScreen4 implements Screen {
 
     private Personaje personaje;
-    private Array<EnemigoVolador> enemigosVoladores;
     private Array<Coin> coins;
     private Array<EnemigoTerrestre1> enemigosTerrestres1;
-    private Array<EnemigoTerrestre2> enemigosTerrestres2;
     private Array<Rectangle> topeEnemigos;
-    private Array<Vector2> vectoresEnemigosVoladores;
     private Array<Vector2> vectoresEspadas;
     private Array<Espada> espadas;
 
@@ -107,11 +104,8 @@ public class GameScreen4 implements Screen {
         this.personaje = new Personaje(new Vector2(pos.x,pos.y), vida, world);
         this.personaje.setCoins(monedas);
 
-        enemigosVoladores = new Array<>();
         enemigosTerrestres1 = new Array<>();
-        enemigosTerrestres2 = new Array<>();
         topeEnemigos = new Array<>();
-        vectoresEnemigosVoladores = new Array<>();
         vectoresEspadas = new Array<>();
         espadas = new Array<>();
     }
@@ -126,31 +120,9 @@ public class GameScreen4 implements Screen {
 
         getTopeEnemigos();
         generarEnemigosTerrestres1();
-        //generarEnemigosTerrestres2();
         generarCoins();
-        //getVectoresEnemigosVoladores();
-        //generarEnemigosVoladores();
         getVectoresEspadas();
 
-        /*
-
-        // DISPSROS ENEMIGOS T2 A REVISAR
-        generarDisparoEnemigosT2();
-
-        Timer.schedule(new Timer.Task() {
-            public void run() {
-                generarDisparoEnemigosT2();
-            }
-        }, 0.05f);
-
-        Timer.schedule(new Timer.Task() {
-            public void run() {
-                generarDisparoEnemigosT2();
-            }
-        }, 0.10f,4,5);
-
-
-         */
 
         Timer.schedule(new Timer.Task() {
             public void run() {
@@ -160,18 +132,6 @@ public class GameScreen4 implements Screen {
 
     }
 
-    private void getVectoresEnemigosVoladores(){
-        MapLayer collisionsLayer = map.getLayers().get("enemigosVoladores");
-
-        for (MapObject object : collisionsLayer.getObjects()) {
-            RectangleMapObject rectangleObject = (RectangleMapObject) object;
-
-            Rectangle rect = rectangleObject.getRectangle();
-
-            vectoresEnemigosVoladores.add(new Vector2(rect.x, rect.y));
-        }
-    }
-
     private void generarEspadas(){
         for(final Vector2 pos : vectoresEspadas) {
             Timer.schedule(new Timer.Task() {
@@ -179,12 +139,6 @@ public class GameScreen4 implements Screen {
                     espadas.add(new Espada(pos.cpy()));
                 }
             },  MathUtils.random(1.0f,1.5f));
-        }
-    }
-
-    private void generarEnemigosVoladores(){
-        for(Vector2 pos : vectoresEnemigosVoladores) {
-            enemigosVoladores.add(new EnemigoVolador(pos.cpy()));
         }
     }
 
@@ -199,7 +153,6 @@ public class GameScreen4 implements Screen {
     }
 
     private Vector2 getPrincipio(){
-        // Obtiene todos los objetos de la capa 'colision'
         MapLayer collisionsLayer = map.getLayers().get("principio");
 
         RectangleMapObject rectangleObject = (RectangleMapObject) collisionsLayer.getObjects().get(0);;
@@ -208,23 +161,16 @@ public class GameScreen4 implements Screen {
     }
 
     private void generarCoins(){
-        // Obtiene todos los objetos de la capa 'colision'
         MapLayer collisionsLayer = map.getLayers().get("coins");
 
         for (MapObject object : collisionsLayer.getObjects()) {
-            //RectangleMapObject rectangleObject = (RectangleMapObject) object;
-
             EllipseMapObject circleMapObject = (EllipseMapObject) object;
-
-            // Caso 3: Obtiene el rectangulo ocupado por el objeto
-            //Rectangle rect = circleMapObject.getRectangle();
 
             coins.add(new Coin(new Vector2(circleMapObject.getEllipse().x, circleMapObject.getEllipse().y)));
         }
     }
 
     private void generarEnemigosTerrestres1(){
-        // Obtiene todos los objetos de la capa 'colision'
         MapLayer collisionsLayer = map.getLayers().get("enemigosT1");
 
         for (MapObject object : collisionsLayer.getObjects()) {
@@ -233,19 +179,6 @@ public class GameScreen4 implements Screen {
             Rectangle rect = rectangleObject.getRectangle();
 
             enemigosTerrestres1.add(new EnemigoTerrestre1(new Vector2(rect.x, rect.y)));
-        }
-    }
-
-    private void generarEnemigosTerrestres2(){
-        // Obtiene todos los objetos de la capa 'colision'
-        MapLayer collisionsLayer = map.getLayers().get("enemigosT2");
-
-        for (MapObject object : collisionsLayer.getObjects()) {
-            RectangleMapObject rectangleObject = (RectangleMapObject) object;
-
-            Rectangle rect = rectangleObject.getRectangle();
-
-            enemigosTerrestres2.add(new EnemigoTerrestre2(new Vector2(rect.x, rect.y)));
         }
     }
 
@@ -262,10 +195,6 @@ public class GameScreen4 implements Screen {
             camera.position.set(TILES_IN_CAMERA_WIDTH * TILE_WIDTH / 2, TILES_IN_CAMERA_HEIGHT * TILE_WIDTH / 2 , 0);
         else
             camera.position.set(personaje.b2body.getPosition().x, TILES_IN_CAMERA_HEIGHT * TILE_WIDTH / 2 , 0);
-        /*
-        camera.update();
-        renderer.setView(camera);
-        */
 
         // These values likely need to be scaled according to your world coordinates.
         // The left boundary of the map (x)
@@ -297,15 +226,6 @@ public class GameScreen4 implements Screen {
         camera.update();
         renderer.setView(camera);
 
-        /*
-        camera.position.x = personaje.b2body.getPosition().x;
-
-        //update our gamecam with correct coordinates after changes
-        camera.update();
-        //tell our renderer to draw only what our camera can see in our game world.
-        renderer.setView(camera);
-        renderer.render();
-        */
     }
 
 
@@ -334,13 +254,11 @@ public class GameScreen4 implements Screen {
                 }
         }
 
-        // Obtiene todos los objetos de la capa 'colision'
         MapLayer collisionsLayer = map.getLayers().get("colisiones");
 
         for (MapObject object : collisionsLayer.getObjects()) {
             RectangleMapObject rectangleObject = (RectangleMapObject) object;
 
-            // Caso 3: Obtiene el rectangulo ocupado por el objeto
             Rectangle rect = rectangleObject.getRectangle();
 
             if(rect.overlaps(personaje.rect))
@@ -358,29 +276,11 @@ public class GameScreen4 implements Screen {
                 }
             }
 
-            for(EnemigoTerrestre2 enemigoTerrestre2: enemigosTerrestres2)
-                for(BalaEnemigoT2 balaEnemigoT2 : enemigoTerrestre2.balas) {
-                    if (balaEnemigoT2.rect.overlaps(rect)) {
-                        enemigoTerrestre2.balas.removeValue(balaEnemigoT2, true);
-                    }
-                }
         }
 
-        for(EnemigoVolador enemigoVolador : enemigosVoladores)
-            for(BalaPj bala : personaje.balas)
-                if (bala.rect.overlaps(enemigoVolador.rect)){
-                    personaje.balas.removeValue(bala, true);
-                    enemigoVolador.quitarVida();
-
-                    if(enemigoVolador.estaMuerto()) {
-                        enemigosVoladores.removeValue(enemigoVolador, true);
-                        if(enemigosVoladores.size == 0)
-                            generarEnemigosVoladores();
-                    }
-                }
 
         for(Coin coin: coins)
-            if(personaje.rect.overlaps(coin.rect)){
+            if((new Rectangle(personaje.b2body.getPosition().x -8 ,personaje.b2body.getPosition().y -14,personaje.getTextura().getRegionWidth(),personaje.getTextura().getRegionHeight())).overlaps(coin.rect)){
                 Coin.playCoinSound();
                 coins.removeValue(coin, true);
                 personaje.coins++;
@@ -391,26 +291,6 @@ public class GameScreen4 implements Screen {
                 EnemigoVolador.balas.removeValue(balaEnemigoVolador, true);
                 personaje.quitarVida();
             }
-
-
-        for(EnemigoTerrestre2 enemigoTerrestre: enemigosTerrestres2) {
-            if (enemigoTerrestre.rect.overlaps(personaje.rect))
-                personaje.quitarVida();
-
-            for(BalaEnemigoT2 balaEnemigoT2: enemigoTerrestre.balas)
-                if(balaEnemigoT2.rect.overlaps(personaje.rect))
-                    personaje.quitarVida();
-
-            for (BalaPj balaPj : personaje.balas)
-                if (enemigoTerrestre.rect.overlaps(balaPj.rect)) {
-                    personaje.balas.removeValue(balaPj, true);
-                    enemigoTerrestre.quitarVida();
-                    if (enemigoTerrestre.estaMuerto()) {
-                        enemigosTerrestres2.removeValue(enemigoTerrestre, true);
-                        coins.add(new Coin(new Vector2(enemigoTerrestre.rect.x, enemigoTerrestre.rect.y)));
-                    }
-                }
-        }
 
         for(EnemigoTerrestre1 enemigoTerrestre: enemigosTerrestres1) {
             if (enemigoTerrestre.rect.overlaps(personaje.rect))
@@ -467,28 +347,23 @@ public class GameScreen4 implements Screen {
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.R)){
+            Timer.instance().clear();
+
             ((Game) Gdx.app.getApplicationListener()).setScreen(new GameScreen1());
         }
     }
 
     private void getTopeEnemigos(){
-        // Obtiene todos los objetos de la capa 'colision'
         MapLayer collisionsLayer = map.getLayers().get("topeEnemigos");
 
         for (MapObject object : collisionsLayer.getObjects())
             topeEnemigos.add(((RectangleMapObject) object).getRectangle());
-
     }
 
     private void moverEnemigos(){
-        for(EnemigoVolador enemigoVolador : enemigosVoladores)
-            enemigoVolador.mover(personaje.b2body.getPosition(),topeEnemigos);
 
         for(EnemigoTerrestre1 ene : enemigosTerrestres1)
             ene.mover(topeEnemigos,personaje.b2body.getPosition());
-
-        for(EnemigoTerrestre2 ene : enemigosTerrestres2)
-            ene.mover(topeEnemigos);
     }
 
 
@@ -509,26 +384,12 @@ public class GameScreen4 implements Screen {
 
     }
 
-    public void generarDisparoEnemigosT2(){
-        Timer.schedule(new Timer.Task() {
-            public void run() {
-                for(EnemigoTerrestre2 ene: enemigosTerrestres2)
-                    ene.disparar(getMousePosInGameWorld());
-            }
-        }, 3,2);
-    }
-
-
     private void moverBalas(){
         for(BalaPj bala : personaje.balas)
             bala.mover();
 
         for(BalaEnemigoVolador balaEnemigoVolador : EnemigoVolador.balas)
             balaEnemigoVolador.mover();
-
-        for(EnemigoTerrestre2 ene : enemigosTerrestres2)
-            for(BalaEnemigoT2 bala : ene.balas)
-                bala.mover();
 
         // Mover espadas
         for(Espada espada: espadas)
@@ -559,17 +420,9 @@ public class GameScreen4 implements Screen {
 
         personaje.pintar(batch);
 
-        for(EnemigoVolador enemigoVolador : enemigosVoladores)
-            enemigoVolador.pintar(batch);
-
 
         for(Coin coin : coins)
             coin.pintar(batch);
-
-
-        for(EnemigoTerrestre2 terrestre : enemigosTerrestres2)
-            terrestre.pintar(batch);
-
 
         for(EnemigoTerrestre1 terrestre : enemigosTerrestres1)
             terrestre.pintar(batch);
@@ -581,24 +434,16 @@ public class GameScreen4 implements Screen {
     }
 
     @Override
-    public void resize(int width, int height) {
-
-    }
+    public void resize(int width, int height) { }
 
     @Override
-    public void pause() {
-
-    }
+    public void pause() { }
 
     @Override
-    public void resume() {
-
-    }
+    public void resume() { }
 
     @Override
-    public void hide() {
-
-    }
+    public void hide() { }
 
     @Override
     public void dispose() {

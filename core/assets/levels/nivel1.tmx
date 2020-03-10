@@ -61,8 +61,8 @@
  <objectgroup id="14" name="principio">
   <object id="152" x="96" y="160" width="16" height="16"/>
  </objectgroup>
- <objectgroup id="13" name="fin" visible="0">
-  <object id="93" x="2490.68" y="204.063" width="5.21835" height="4.13237" rotation="-539.811"/>
+ <objectgroup id="13" name="fin">
+  <object id="93" x="2480" y="208" width="16.0527" height="15.9471" rotation="-539.811"/>
  </objectgroup>
  <objectgroup id="12" name="topeEnemigos" visible="0">
   <object id="80" x="656" y="160" width="16" height="48"/>

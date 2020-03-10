@@ -12,8 +12,6 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Timer;
 import com.ivn.mijuego.screens.GameOverScreen;
-import com.ivn.mijuego.screens.MainScreen;
-
 
 import static com.ivn.mijuego.screens.ConfigurationScreen.prefs;
 import static com.ivn.mijuego.util.Constantes.PERSONAJE_SPEED;
@@ -70,7 +68,7 @@ public class Personaje extends Sprite {
         this.vidas = vidas;
         this.velocidad = PERSONAJE_SPEED;
         this.textura = new TextureAtlas(Gdx.files.internal("personaje/runLeft.atlas")).findRegions("run").get(0);
-        this.rect = new Rectangle(posicion.x,posicion.y, textura.getRegionWidth(), textura.getRegionHeight());
+        this.rect = new Rectangle(posicion.x,posicion.y, textura.getRegionWidth()-6, textura.getRegionHeight()-6);
         this.world = world;
 
         definePersonaje();
@@ -134,11 +132,12 @@ public class Personaje extends Sprite {
 
         if(isInmune)
             if(estado == Estado.RUN_LEFT || estado == Estado.IDLE_LEFT)
-                batch.draw((TextureRegion) (inmuneLeftAnimation.getKeyFrame(stateTime, true)), b2body.getPosition().x -8, b2body.getPosition().y -14);
+                batch.draw((TextureRegion) (inmuneLeftAnimation.getKeyFrame(stateTime, true)), b2body.getPosition().x -8, b2body.getPosition().y -11);
             else
-                batch.draw((TextureRegion) (inmuneAnimation.getKeyFrame(stateTime, true)), b2body.getPosition().x -8, b2body.getPosition().y -14);
+                batch.draw((TextureRegion) (inmuneAnimation.getKeyFrame(stateTime, true)), b2body.getPosition().x -8, b2body.getPosition().y -11);
         else
-            batch.draw(currentFrame, b2body.getPosition().x -8, b2body.getPosition().y -14);
+            batch.draw(currentFrame, b2body.getPosition().x -8, b2body.getPosition().y -11);
+
 
         rect.setPosition(new Vector2 (b2body.getPosition().x -8, b2body.getPosition().y -15));
     }
@@ -148,28 +147,18 @@ public class Personaje extends Sprite {
             if(prefs.getBoolean("sound"))
                 jumpSound.play(0.25f);
 
-            //b2body.applyLinearImpulse(new Vector2(0, 4*100f), b2body.getWorldCenter(), true);
             b2body.setLinearVelocity(new Vector2(b2body.getLinearVelocity().x, 20600).scl(velocidad));
             isJumping = true;
         }
-
-        //b2body.applyLinearImpulse(new Vector2(0,500),b2body.getWorldCenter(), true);
-        //b2body.setLinearVelocity(b2body.getLinearVelocity().x, 1000);
     }
 
     public void moverDerecha(){
-
         estado = Estado.RUN_RIGHT;
-        //b2body.applyLinearImpulse(new Vector2(100,0),b2body.getWorldCenter(), true);
-        //b2body.setLinearVelocity(100,b2body.getLinearVelocity().y);
         b2body.applyForce(new Vector2(200f,b2body.getLinearVelocity().y).scl(velocidad),b2body.getWorldCenter(), true);
     }
 
     public void moverIzquierda(){
-
         estado = Estado.RUN_LEFT;
-        //b2body.applyLinearImpulse(new Vector2(-100,0),b2body.getWorldCenter(), true);
-        //b2body.setLinearVelocity(-100,b2body.getLinearVelocity().y);
         b2body.applyForce(new Vector2(-200f,b2body.getLinearVelocity().y).scl(velocidad),b2body.getWorldCenter(), true);
     }
 
@@ -223,6 +212,7 @@ public class Personaje extends Sprite {
             empujar();
 
             if(estaMuerto()) {
+                Timer.instance().clear();
                 ((Game) Gdx.app.getApplicationListener()).setScreen(new GameOverScreen(false));
             }
             getInmunidad();

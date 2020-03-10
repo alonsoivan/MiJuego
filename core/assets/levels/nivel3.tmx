@@ -189,7 +189,7 @@
   </object>
  </objectgroup>
  <objectgroup id="10" name="fin">
-  <object id="72" x="36.3125" y="36.6875" width="7.1875" height="10.375"/>
+  <object id="72" x="32" y="32" width="16" height="15.7898"/>
  </objectgroup>
  <objectgroup id="11" name="enemigosVoladores">
   <object id="73" x="-16" y="16" width="16" height="16"/>
