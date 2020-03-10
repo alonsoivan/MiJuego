@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Timer;
+import com.ivn.mijuego.screens.GameOverScreen;
 import com.ivn.mijuego.screens.MainScreen;
 
 
@@ -222,7 +223,7 @@ public class Personaje extends Sprite {
             empujar();
 
             if(estaMuerto())
-                ((Game) Gdx.app.getApplicationListener()).setScreen( new MainScreen());
+                ((Game) Gdx.app.getApplicationListener()).setScreen( new GameOverScreen(false));
 
             getInmunidad();
         }

@@ -321,8 +321,10 @@ public class GameScreen4 implements Screen {
                 personaje.quitarVida();
 
             for(BalaPj balaPj : personaje.balas)
-                if(balaPj.rect.overlaps(espada.rect))
+                if(balaPj.rect.overlaps(espada.rect)){
                     personaje.balas.removeValue(balaPj,true);
+                    Espada.playHit();
+                }
         }
 
         // Obtiene todos los objetos de la capa 'colision'
@@ -421,7 +423,7 @@ public class GameScreen4 implements Screen {
         MapLayer finLayer = map.getLayers().get("fin");
         for (MapObject object : finLayer.getObjects())
             if (((RectangleMapObject) object).getRectangle().overlaps(personaje.rect))
-                ((Game) Gdx.app.getApplicationListener()).setScreen( new GameScreen1());
+                ((Game) Gdx.app.getApplicationListener()).setScreen( new GameOverScreen(true));
     }
 
     private void comprobarTeclado(float dt) {

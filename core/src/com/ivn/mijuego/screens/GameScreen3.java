@@ -378,7 +378,7 @@ public class GameScreen3 implements Screen {
         MapLayer finLayer = map.getLayers().get("fin");
         for (MapObject object : finLayer.getObjects())
             if (((RectangleMapObject) object).getRectangle().overlaps(personaje.rect))
-                ((Game) Gdx.app.getApplicationListener()).setScreen( new GameScreen1());
+                ((Game) Gdx.app.getApplicationListener()).setScreen( new GameScreen4(personaje));
     }
 
     private void comprobarTeclado(float dt) {

@@ -111,49 +111,31 @@
   <object id="27" x="432" y="192" width="16" height="16"/>
  </objectgroup>
  <objectgroup id="9" name="coins">
-  <object id="28" x="403.333" y="161.833" width="8.75" height="12.25">
+  <object id="28" x="483.333" y="142.924" width="8.75" height="12.25">
    <ellipse/>
   </object>
-  <object id="45" x="115.292" y="177.542" width="8.75" height="12.25">
+  <object id="46" x="178.75" y="146.75" width="8.75" height="12.25">
    <ellipse/>
   </object>
-  <object id="46" x="178.625" y="162.208" width="8.75" height="12.25">
+  <object id="47" x="210.75" y="146.75" width="8.75" height="12.25">
    <ellipse/>
   </object>
-  <object id="47" x="210.625" y="162.542" width="8.75" height="12.25">
+  <object id="49" x="339.25" y="128.75" width="8.75" height="12.25">
    <ellipse/>
   </object>
-  <object id="48" x="274.958" y="137.542" width="8.75" height="12.25">
+  <object id="50" x="619.292" y="130.125" width="8.75" height="12.25">
    <ellipse/>
   </object>
-  <object id="49" x="339.625" y="138.208" width="8.75" height="12.25">
+  <object id="51" x="755.534" y="114.39" width="8.75" height="12.25">
    <ellipse/>
   </object>
-  <object id="50" x="619.292" y="145.875" width="8.75" height="12.25">
+  <object id="53" x="851.883" y="137.958" width="8.75" height="12.25">
    <ellipse/>
   </object>
-  <object id="51" x="755.625" y="130.208" width="8.75" height="12.25">
+  <object id="55" x="1028.21" y="144.542" width="8.75" height="12.25">
    <ellipse/>
   </object>
-  <object id="52" x="674.958" y="97.875" width="8.75" height="12.25">
-   <ellipse/>
-  </object>
-  <object id="53" x="851.292" y="162.208" width="8.75" height="12.25">
-   <ellipse/>
-  </object>
-  <object id="54" x="939.292" y="112.875" width="8.75" height="12.25">
-   <ellipse/>
-  </object>
-  <object id="55" x="1026.96" y="144.542" width="8.75" height="12.25">
-   <ellipse/>
-  </object>
-  <object id="56" x="1083.63" y="136.875" width="8.75" height="12.25">
-   <ellipse/>
-  </object>
-  <object id="57" x="1171.96" y="90.5417" width="8.75" height="12.25">
-   <ellipse/>
-  </object>
-  <object id="58" x="1075.29" y="66.2083" width="8.75" height="12.25">
+  <object id="57" x="1171.96" y="82.5417" width="8.75" height="12.25">
    <ellipse/>
   </object>
   <object id="59" x="964.292" y="33.2083" width="8.75" height="12.25">
@@ -162,7 +144,7 @@
   <object id="60" x="1187.29" y="17.875" width="8.75" height="12.25">
    <ellipse/>
   </object>
-  <object id="61" x="1107.62" y="50.2083" width="8.75" height="12.25">
+  <object id="61" x="1109.37" y="49.9583" width="8.75" height="12.25">
    <ellipse/>
   </object>
  </objectgroup>
